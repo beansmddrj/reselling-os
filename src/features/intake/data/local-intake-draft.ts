@@ -13,13 +13,24 @@ type StoredDraft = { form: IntakeDraftForm; photos: StoredPhoto[]; savedAt: stri
 function openDatabase() {
   return new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
+    const timeout = window.setTimeout(() => reject(new Error("Photo storage did not respond")), 1500);
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(STORE_NAME)) {
         request.result.createObjectStore(STORE_NAME);
       }
     };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      window.clearTimeout(timeout);
+      resolve(request.result);
+    };
+    request.onerror = () => {
+      window.clearTimeout(timeout);
+      reject(request.error);
+    };
+    request.onblocked = () => {
+      window.clearTimeout(timeout);
+      reject(new Error("Photo storage is blocked by another tab"));
+    };
   });
 }
 
@@ -67,9 +78,9 @@ export async function saveLocalDraft(form: IntakeDraftForm, photos: IntakePhoto[
 }
 
 export async function loadLocalDraft() {
-  const value = localStorage.getItem(DRAFT_KEY);
-  if (!value) return null;
   try {
+    const value = localStorage.getItem(DRAFT_KEY);
+    if (!value) return null;
     const stored = JSON.parse(value) as StoredDraft;
     const database = await openDatabase();
     const photos: IntakePhoto[] = [];

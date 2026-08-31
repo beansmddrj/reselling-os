@@ -89,18 +89,31 @@ export function SmartIntake() {
 
   useEffect(() => {
     let active = true;
-    void loadLocalDraft().then(async (saved) => {
+    const deadline = <T,>(promise: Promise<T>, milliseconds: number, fallback: T) => Promise.race([
+      promise,
+      new Promise<T>((resolve) => window.setTimeout(() => resolve(fallback), milliseconds)),
+    ]);
+    void (async () => {
+      const saved = await deadline(loadLocalDraft(), 2000, null);
       if (!active) return;
-      const restoredForm = saved?.form ?? emptyDraft();
       const restoredPhotos = saved?.photos ?? [];
-      for (const photo of restoredPhotos) {
-        if (!photo.previewUrl && photo.storagePath) photo.previewUrl = await getPhotoPreview(photo.storagePath).catch(() => "");
-      }
+      await Promise.all(restoredPhotos.map(async (photo) => {
+        if (!photo.previewUrl && photo.storagePath) {
+          photo.previewUrl = await deadline(getPhotoPreview(photo.storagePath).catch(() => ""), 1500, "");
+        }
+      }));
       if (!active) return;
-      setForm(restoredForm);
+      setForm(saved?.form ?? emptyDraft());
       setPhotos(restoredPhotos);
       setSaveState(saved ? "local" : "synced");
       setMessage(saved ? "Draft restored from this device" : "Ready");
+      hydrated.current = true;
+    })().catch(() => {
+      if (!active) return;
+      setForm(emptyDraft());
+      setPhotos([]);
+      setSaveState("local");
+      setMessage("Ready — previous draft storage was unavailable");
       hydrated.current = true;
     });
     return () => { active = false; };
