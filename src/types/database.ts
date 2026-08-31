@@ -39,13 +39,31 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["business_events"]["Insert"]>;
         Relationships: [];
       };
+      intake_drafts: {
+        Row: { id: string; owner_id: string; step: Database["public"]["Enums"]["intake_step"]; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; acquisition_cost_cents: number | null; asking_price_cents: number | null; storage_location: string | null; photo_paths: string[]; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; step?: Database["public"]["Enums"]["intake_step"]; name?: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; acquisition_cost_cents?: number | null; asking_price_cents?: number | null; storage_location?: string | null; photo_paths?: string[]; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["intake_drafts"]["Insert"]>;
+        Relationships: [];
+      };
+      product_photos: {
+        Row: { id: string; owner_id: string; product_id: string; storage_path: string; position: number; created_at: string };
+        Insert: { id?: string; owner_id: string; product_id: string; storage_path: string; position: number; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["product_photos"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      finalize_intake_draft: {
+        Args: { draft_id: string };
+        Returns: { product_id: string; inventory_unit_id: string; listing_id: string }[];
+      };
+    };
     Enums: {
       inventory_status: "draft" | "ready" | "active" | "sold";
       listing_status: "draft" | "ready" | "active" | "ended" | "sold";
       marketplace_platform: "facebook" | "ebay" | "other";
+      intake_step: "photos" | "review";
     };
     CompositeTypes: Record<string, never>;
   };

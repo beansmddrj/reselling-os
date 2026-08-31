@@ -18,7 +18,13 @@
 * { box-sizing: border-box; }
 html { background: var(--bg); }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-geist-sans), system-ui, sans-serif; }
-button, a { -webkit-tap-highlight-color: transparent; }
+body { padding-top: env(safe-area-inset-top); overscroll-behavior-y: none; }
+button, a, label { -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; }
+input, select, textarea { scroll-margin-block: 7rem 12rem; }
+@media (max-width: 1023px) {
+  body:has(input:focus, select:focus, textarea:focus) [data-mobile-nav] { display: none; }
+}
 ::selection { background: var(--accent); color: #080a06; }
 
 .surface {

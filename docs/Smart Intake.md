@@ -35,3 +35,15 @@ Reusable templates can retain appropriate photos, product identity, listing defa
 
 ## Learning
 Persist both the original AI-generated listing and the user's final edited version. Record meaningful title, description, and price edits so future systems can learn preferences and later compare them against actual sales outcomes.
+
+## v0.1 foundation
+
+The first implementation deliberately stops before AI identification. New-product intake currently provides:
+
+- a 1–5 photo workspace with native camera/library selection, immediate previews, replacement, removal, and ordering
+- device-local draft recovery for both form fields and selected photo files
+- authenticated Supabase draft synchronization and private photo storage
+- a structured human review form with deterministic currency conversion
+- atomic finalization into a Product, draft Inventory Unit, ordered Product Photos, and draft Facebook Listing
+
+Finalization never posts to a marketplace. AI identification and listing generation remain later, explicit stages built on top of this draft boundary.
