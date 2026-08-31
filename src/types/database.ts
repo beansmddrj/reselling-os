@@ -1,0 +1,52 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  public: {
+    Tables: {
+      profiles: {
+        Row: { id: string; display_name: string | null; created_at: string; updated_at: string };
+        Insert: { id: string; display_name?: string | null; created_at?: string; updated_at?: string };
+        Update: { display_name?: string | null; updated_at?: string };
+        Relationships: [];
+      };
+      products: {
+        Row: { id: string; owner_id: string; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; is_template: boolean; default_asking_price_cents: number | null; default_cost_cents: number | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; name: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; is_template?: boolean; default_asking_price_cents?: number | null; default_cost_cents?: number | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["products"]["Insert"]>;
+        Relationships: [];
+      };
+      inventory_units: {
+        Row: { id: string; owner_id: string; product_id: string; sku: string; status: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at: string; storage_location: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; product_id: string; sku: string; status?: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at?: string; storage_location?: string | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["inventory_units"]["Insert"]>;
+        Relationships: [];
+      };
+      listings: {
+        Row: { id: string; owner_id: string; product_id: string; platform: Database["public"]["Enums"]["marketplace_platform"]; status: Database["public"]["Enums"]["listing_status"]; external_listing_id: string | null; external_url: string | null; title: string; description: string | null; asking_price_cents: number; minimum_price_cents: number | null; original_ai_title: string | null; original_ai_description: string | null; original_ai_asking_price_cents: number | null; posted_at: string | null; ended_at: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; product_id: string; platform: Database["public"]["Enums"]["marketplace_platform"]; status?: Database["public"]["Enums"]["listing_status"]; external_listing_id?: string | null; external_url?: string | null; title: string; description?: string | null; asking_price_cents: number; minimum_price_cents?: number | null; original_ai_title?: string | null; original_ai_description?: string | null; original_ai_asking_price_cents?: number | null; posted_at?: string | null; ended_at?: string | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["listings"]["Insert"]>;
+        Relationships: [];
+      };
+      sales: {
+        Row: { id: string; owner_id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string };
+        Insert: { id?: string; owner_id: string; inventory_unit_id: string; listing_id?: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents?: number; payment_fee_cents?: number; shipping_cost_cents?: number; other_cost_cents?: number; sold_at?: string; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["sales"]["Insert"]>;
+        Relationships: [];
+      };
+      business_events: {
+        Row: { id: string; owner_id: string; event_type: string; entity_type: string | null; entity_id: string | null; metadata: Json; occurred_at: string };
+        Insert: { id?: string; owner_id: string; event_type: string; entity_type?: string | null; entity_id?: string | null; metadata?: Json; occurred_at?: string };
+        Update: Partial<Database["public"]["Tables"]["business_events"]["Insert"]>;
+        Relationships: [];
+      };
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: {
+      inventory_status: "draft" | "ready" | "active" | "sold";
+      listing_status: "draft" | "ready" | "active" | "ended" | "sold";
+      marketplace_platform: "facebook" | "ebay" | "other";
+    };
+    CompositeTypes: Record<string, never>;
+  };
+};
