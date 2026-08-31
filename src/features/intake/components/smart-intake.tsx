@@ -86,6 +86,7 @@ export function SmartIntake() {
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState<{ productId: string } | null>(null);
   const hydrated = useRef(false);
+  const lastScheduledSnapshot = useRef("");
 
   useEffect(() => {
     let active = true;
@@ -121,31 +122,59 @@ export function SmartIntake() {
 
   useEffect(() => {
     if (!form || !hydrated.current || completed) return;
+    const snapshot = JSON.stringify({
+      form,
+      photos: photos.map(({ id, name, type, size, file }) => ({ id, name, type, size, lastModified: file?.lastModified ?? 0 })),
+    });
+    if (snapshot === lastScheduledSnapshot.current) return;
+    lastScheduledSnapshot.current = snapshot;
+    let cancelled = false;
+    let savingIndicatorTimer: number | undefined;
     const localTimer = window.setTimeout(() => {
       void saveLocalDraft(form, photos).then(() => {
+        if (cancelled) return;
         setSaveState((state) => state === "saving" ? state : "local");
         setMessage((current) => current.startsWith("Sync") ? current : "Saved on this device");
       }).catch(() => {
+        if (cancelled) return;
         setSaveState("error");
         setMessage("This device could not save the draft");
       });
     }, 200);
     const remoteTimer = window.setTimeout(() => {
-      setSaveState("saving");
-      setMessage("Syncing draft…");
+      savingIndicatorTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        setSaveState("saving");
+        setMessage("Syncing draft…");
+      }, 400);
       void saveRemoteDraft(form, photos).then((synced) => {
-        setPhotos((current) => current.map((photo) => {
-          const match = synced.find((item) => item.id === photo.id);
-          return match?.storagePath === photo.storagePath ? photo : match ?? photo;
-        }));
+        if (cancelled) return;
+        window.clearTimeout(savingIndicatorTimer);
+        setPhotos((current) => {
+          let changed = false;
+          const next = current.map((photo) => {
+            const match = synced.find((item) => item.id === photo.id);
+            if (!match || (match.storagePath === photo.storagePath && match.syncState === photo.syncState)) return photo;
+            changed = true;
+            return match;
+          });
+          return changed ? next : current;
+        });
         setSaveState("synced");
         setMessage("Draft synced");
       }).catch((error: unknown) => {
+        if (cancelled) return;
+        window.clearTimeout(savingIndicatorTimer);
         setSaveState("local");
         setMessage(error instanceof Error ? error.message : "Saved on device; sync unavailable");
       });
     }, 1000);
-    return () => { window.clearTimeout(localTimer); window.clearTimeout(remoteTimer); };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(localTimer);
+      window.clearTimeout(remoteTimer);
+      window.clearTimeout(savingIndicatorTimer);
+    };
   }, [form, photos, completed]);
 
   const addFiles = useCallback((files: FileList | null) => {
@@ -261,7 +290,6 @@ export function SmartIntake() {
     <div onPointerDown={(event) => { if (event.target === event.currentTarget) (document.activeElement as HTMLElement | null)?.blur(); }}>
       <div className="mb-6 flex items-start justify-between gap-4">
         <div><p className="text-xs font-semibold uppercase tracking-[.2em] text-[var(--accent)]">Smart Intake · {form.step === "photos" ? "Photos" : "Review"}</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">{form.step === "photos" ? "Show us what you found." : "Review the product."}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">{form.step === "photos" ? "Add 1–5 clear angles. The first photo becomes the lead image; you can replace or reorder any photo." : "No AI guesses yet—enter only what you know. This creates editable drafts, not a live marketplace post."}</p></div>
-        <div className="hidden shrink-0 text-right sm:block" role="status"><p className={`text-xs font-semibold ${saveState === "error" ? "text-red-300" : "text-[var(--accent)]"}`}>{saveState === "saving" ? "● Saving" : saveState === "synced" ? "✓ Synced" : "✓ On device"}</p><p className="mt-1 max-w-56 text-xs text-[var(--muted)]">{message}</p></div>
       </div>
 
       <div className="mb-5 flex items-center gap-2" aria-label="Intake progress"><span className="h-1.5 flex-1 rounded-full bg-[var(--accent)]"/><span className={`h-1.5 flex-1 rounded-full ${form.step === "review" ? "bg-[var(--accent)]" : "bg-white/10"}`}/></div>
