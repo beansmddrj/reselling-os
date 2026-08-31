@@ -4,7 +4,7 @@ import Link from "next/link";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { clearLocalDraft, loadLocalDraft, saveLocalDraft } from "@/features/intake/data/local-intake-draft";
 import { finalizeRemoteDraft, getPhotoPreview, removeRemotePhoto, saveRemoteDraft } from "@/features/intake/data/intake-draft-repository";
-import { emptyDraft, type IntakeDraftForm, type IntakePhoto } from "@/features/intake/types";
+import { createUuid, emptyDraft, type IntakeDraftForm, type IntakePhoto } from "@/features/intake/types";
 
 const MAX_PHOTOS = 5;
 
@@ -153,7 +153,7 @@ export function SmartIntake() {
     setPhotos((current) => {
       const available = MAX_PHOTOS - current.length;
       const next = Array.from(files).filter((file) => file.type.startsWith("image/")).slice(0, available).map((file) => ({
-        id: crypto.randomUUID(),
+        id: createUuid(),
         name: file.name,
         type: file.type,
         size: file.size,
