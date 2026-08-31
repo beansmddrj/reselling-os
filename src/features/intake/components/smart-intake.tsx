@@ -7,6 +7,20 @@ import { finalizeRemoteDraft, getPhotoPreview, removeRemotePhoto, saveRemoteDraf
 import { createUuid, emptyDraft, type IntakeDraftForm, type IntakePhoto } from "@/features/intake/types";
 
 const MAX_PHOTOS = 5;
+const IMAGE_FILE_EXTENSION = /\.(?:jpe?g|png|webp|heic|heif)$/i;
+
+function isImageFile(file: File) {
+  return file.type.startsWith("image/") || IMAGE_FILE_EXTENSION.test(file.name);
+}
+
+function imageContentType(file: File) {
+  if (file.type.startsWith("image/")) return file.type;
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (extension === "png") return "image/png";
+  if (extension === "webp") return "image/webp";
+  if (extension === "heic" || extension === "heif") return `image/${extension}`;
+  return "image/jpeg";
+}
 
 type SaveState = "restoring" | "local" | "saving" | "synced" | "error";
 
@@ -177,14 +191,18 @@ export function SmartIntake() {
     };
   }, [form, photos, completed]);
 
-  const addFiles = useCallback((files: FileList | null) => {
-    if (!files) return;
+  const addFiles = useCallback((files: File[]) => {
+    const accepted = files.filter(isImageFile);
+    if (!accepted.length) {
+      setValidationError("That file is not a supported photo. Choose a JPEG, PNG, WebP, HEIC, or HEIF image.");
+      return;
+    }
     setPhotos((current) => {
       const available = MAX_PHOTOS - current.length;
-      const next = Array.from(files).filter((file) => file.type.startsWith("image/")).slice(0, available).map((file) => ({
+      const next = accepted.slice(0, available).map((file) => ({
         id: createUuid(),
         name: file.name,
-        type: file.type,
+        type: imageContentType(file),
         size: file.size,
         file,
         previewUrl: URL.createObjectURL(file),
@@ -206,12 +224,15 @@ export function SmartIntake() {
 
   const replacePhoto = useCallback((id: string, files: FileList | null) => {
     const file = files?.[0];
-    if (!file?.type.startsWith("image/")) return;
+    if (!file || !isImageFile(file)) {
+      setValidationError("That file is not a supported photo. Choose a JPEG, PNG, WebP, HEIC, or HEIF image.");
+      return;
+    }
     setPhotos((current) => current.map((photo) => {
       if (photo.id !== id) return photo;
       if (photo.previewUrl.startsWith("blob:")) URL.revokeObjectURL(photo.previewUrl);
       void removeRemotePhoto(photo.storagePath);
-      return { ...photo, name: file.name, type: file.type, size: file.size, file, previewUrl: URL.createObjectURL(file), storagePath: undefined, syncState: "local" };
+      return { ...photo, name: file.name, type: imageContentType(file), size: file.size, file, previewUrl: URL.createObjectURL(file), storagePath: undefined, syncState: "local" };
     }));
   }, []);
 
@@ -298,7 +319,7 @@ export function SmartIntake() {
         <section className="surface rounded-[2rem] p-4 sm:p-6">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {photos.map((photo, index) => <PhotoCard key={photo.id} photo={photo} index={index} count={photos.length} onRemove={removePhoto} onReplace={replacePhoto} onMove={movePhoto} />)}
-            {photos.length < MAX_PHOTOS && <label className="group flex aspect-[4/5] min-w-0 cursor-pointer flex-col items-center justify-center rounded-[1.4rem] border border-dashed border-white/20 bg-white/[.025] p-4 text-center transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 focus-within:border-[var(--accent)] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--accent)]"><span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-3xl font-light text-black shadow-[0_0_30px_var(--accent-glow)]">+</span><span className="mt-4 text-sm font-semibold">Add {photos.length ? "another" : "photos"}</span><span className="mt-1 text-xs leading-5 text-[var(--muted)]">Camera or photo library<br/>{photos.length}/{MAX_PHOTOS}</span><input type="file" accept="image/*" multiple className="sr-only" onChange={(event) => { addFiles(event.target.files); event.target.value = ""; }}/></label>}
+            {photos.length < MAX_PHOTOS && <label className="group flex aspect-[4/5] min-w-0 cursor-pointer flex-col items-center justify-center rounded-[1.4rem] border border-dashed border-white/20 bg-white/[.025] p-4 text-center transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/5 focus-within:border-[var(--accent)] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--accent)]"><span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-3xl font-light text-black shadow-[0_0_30px_var(--accent-glow)]">+</span><span className="mt-4 text-sm font-semibold">Add {photos.length ? "another" : "photos"}</span><span className="mt-1 text-xs leading-5 text-[var(--muted)]">Camera or photo library<br/>{photos.length}/{MAX_PHOTOS}</span><input type="file" accept="image/*" multiple className="sr-only" onChange={(event) => { const selectedFiles = Array.from(event.currentTarget.files ?? []); event.currentTarget.value = ""; addFiles(selectedFiles); }}/></label>}
           </div>
           <p className="mt-4 text-xs leading-5 text-[var(--muted)]">Tip: include the front, label/model details, condition issues, and included accessories. On desktop, drag photos to reorder.</p>
         </section>
