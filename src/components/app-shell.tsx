@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AuthStatus } from "@/features/auth/components/auth-status";
 
 const nav = [
   { href: "/", label: "Home", icon: "⌂" },
@@ -12,6 +13,7 @@ const nav = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  if (pathname.startsWith("/auth")) return children;
   return (
     <div className="min-h-dvh bg-[var(--bg)] text-[var(--text)]">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/8 bg-[var(--panel)]/90 p-5 backdrop-blur-xl lg:flex lg:flex-col">
@@ -32,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-20 border-b border-white/6 bg-[var(--bg)]/75 px-5 py-4 backdrop-blur-xl sm:px-8 lg:px-10">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <div><p className="text-xs font-semibold uppercase tracking-[.2em] text-[var(--accent)]">Reselling OS</p><p className="mt-1 text-sm text-[var(--muted)]">Build the pipeline. Move the inventory.</p></div>
-            <div className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold">S</div>
+            <AuthStatus />
           </div>
         </header>
         <main className="mx-auto max-w-7xl px-5 pb-28 pt-7 sm:px-8 lg:px-10 lg:pb-12">{children}</main>

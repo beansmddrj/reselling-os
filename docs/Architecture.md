@@ -19,6 +19,8 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 
 ## Engineering principles
 - Secrets only through environment configuration; never commit credentials.
+- Supabase Auth sessions use secure cookie handling through `@supabase/ssr`; the Next.js proxy refreshes claims and protects application routes.
+- Public database tables remain protected by owner-scoped RLS even when the authenticated Data API role has explicit table grants.
 - Database migrations are version controlled.
 - `main` remains working.
 - Core financial/state rules are tested.
