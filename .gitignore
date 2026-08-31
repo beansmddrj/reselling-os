@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Obsidian local workspace
 docs/.obsidian/
+
+# Supabase local CLI state
+supabase/.temp/
