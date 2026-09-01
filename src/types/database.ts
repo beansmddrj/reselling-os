@@ -16,8 +16,8 @@ export type Database = {
         Relationships: [];
       };
       inventory_units: {
-        Row: { id: string; owner_id: string; product_id: string; sku: string; status: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at: string; storage_location: string | null; created_at: string; updated_at: string };
-        Insert: { id?: string; owner_id: string; product_id: string; sku: string; status?: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at?: string; storage_location?: string | null; created_at?: string; updated_at?: string };
+        Row: { id: string; owner_id: string; product_id: string; sku: string; status: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at: string; storage_location: string | null; source_shipment_id: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; product_id: string; sku: string; status?: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at?: string; storage_location?: string | null; source_shipment_id?: string | null; created_at?: string; updated_at?: string };
         Update: Partial<Database["public"]["Tables"]["inventory_units"]["Insert"]>;
         Relationships: [];
       };
@@ -46,8 +46,8 @@ export type Database = {
         Relationships: [];
       };
       intake_drafts: {
-        Row: { id: string; owner_id: string; step: Database["public"]["Enums"]["intake_step"]; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; acquisition_cost_cents: number | null; asking_price_cents: number | null; storage_location: string | null; photo_paths: string[]; created_at: string; updated_at: string };
-        Insert: { id?: string; owner_id: string; step?: Database["public"]["Enums"]["intake_step"]; name?: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; acquisition_cost_cents?: number | null; asking_price_cents?: number | null; storage_location?: string | null; photo_paths?: string[]; created_at?: string; updated_at?: string };
+        Row: { id: string; owner_id: string; step: Database["public"]["Enums"]["intake_step"]; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; acquisition_cost_cents: number | null; asking_price_cents: number | null; storage_location: string | null; source_shipment_id: string | null; photo_paths: string[]; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; step?: Database["public"]["Enums"]["intake_step"]; name?: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; acquisition_cost_cents?: number | null; asking_price_cents?: number | null; storage_location?: string | null; source_shipment_id?: string | null; photo_paths?: string[]; created_at?: string; updated_at?: string };
         Update: Partial<Database["public"]["Tables"]["intake_drafts"]["Insert"]>;
         Relationships: [];
       };
@@ -68,6 +68,26 @@ export type Database = {
         Insert: { id?: string; business_owner_id: string; email: string; invited_by: string; accepted_at?: string | null; created_at?: string };
         Update: Partial<Database["public"]["Tables"]["business_invites"]["Insert"]>;
         Relationships: [];
+      };
+      inbound_shipments: {
+        Row: { id: string; owner_id: string; name: string; supplier_name: string | null; supplier_order_reference: string | null; status: string; visibility: string; expected_pieces: number; received_pieces: number; ordered_on: string | null; expected_delivery_on: string | null; contents: string | null; notes: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; name: string; supplier_name?: string | null; supplier_order_reference?: string | null; status?: string; visibility?: string; expected_pieces: number; received_pieces?: number; ordered_on?: string | null; expected_delivery_on?: string | null; contents?: string | null; notes?: string | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["inbound_shipments"]["Insert"]>; Relationships: [];
+      };
+      inbound_shipment_financials: {
+        Row: { shipment_id: string; owner_id: string; purchase_cost_cents: number; shipping_cost_cents: number; tax_cost_cents: number; duties_cost_cents: number; insurance_cost_cents: number; other_cost_cents: number; projected_revenue_cents: number | null; created_at: string; updated_at: string };
+        Insert: { shipment_id: string; owner_id: string; purchase_cost_cents?: number; shipping_cost_cents?: number; tax_cost_cents?: number; duties_cost_cents?: number; insurance_cost_cents?: number; other_cost_cents?: number; projected_revenue_cents?: number | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["inbound_shipment_financials"]["Insert"]>; Relationships: [];
+      };
+      inbound_packages: {
+        Row: { id: string; shipment_id: string; owner_id: string; carrier: string | null; tracking_number: string | null; tracking_url: string | null; status: string; expected_pieces: number | null; received_pieces: number; estimated_delivery_on: string | null; last_tracking_update_at: string | null; last_known_location: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; shipment_id: string; owner_id: string; carrier?: string | null; tracking_number?: string | null; tracking_url?: string | null; status?: string; expected_pieces?: number | null; received_pieces?: number; estimated_delivery_on?: string | null; last_tracking_update_at?: string | null; last_known_location?: string | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["inbound_packages"]["Insert"]>; Relationships: [];
+      };
+      inbound_receipts: {
+        Row: { id: string; shipment_id: string; package_id: string | null; owner_id: string; received_pieces: number; exception_type: string | null; notes: string | null; received_at: string; created_at: string };
+        Insert: { id?: string; shipment_id: string; package_id?: string | null; owner_id: string; received_pieces: number; exception_type?: string | null; notes?: string | null; received_at?: string; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["inbound_receipts"]["Insert"]>; Relationships: [];
       };
     };
     Views: Record<string, never>;

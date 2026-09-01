@@ -55,6 +55,7 @@ export async function saveRemoteDraft(form: IntakeDraftForm, photos: IntakePhoto
     acquisition_cost_cents: moneyToCents(form.acquisitionCost),
     asking_price_cents: moneyToCents(form.askingPrice),
     storage_location: form.storageLocation || null,
+    source_shipment_id: form.sourceShipmentId || null,
     photo_paths: syncedPhotos.flatMap((photo) => photo.storagePath ? [photo.storagePath] : []),
   });
   if (error) throw new Error(`Could not sync draft: ${error.message}`);

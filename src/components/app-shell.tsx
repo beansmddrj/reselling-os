@@ -8,6 +8,7 @@ const nav = [
   { href: "/", label: "Home", icon: "⌂" },
   { href: "/inventory", label: "Inventory", icon: "▦" },
   { href: "/intake", label: "Intake", icon: "+", primary: true },
+  { href: "/incoming", label: "Incoming", icon: "↓" },
   { href: "/sales", label: "Sales", icon: "↗" },
 ];
 
@@ -40,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="mx-auto max-w-7xl px-5 pb-28 pt-7 sm:px-8 lg:px-10 lg:pb-12">{children}</main>
       </div>
 
-      <nav data-mobile-nav className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-4 rounded-[1.7rem] border border-white/10 bg-[#101218]/90 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-2xl lg:hidden">
+      <nav data-mobile-nav className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-5 rounded-[1.7rem] border border-white/10 bg-[#101218]/90 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-2xl lg:hidden">
         {nav.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return <Link key={item.href} href={item.href} className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.25rem] text-[10px] font-semibold transition active:scale-95 ${active ? "text-white" : "text-[var(--muted)]"}`}><span className={`grid size-8 place-items-center rounded-xl text-base transition ${item.primary ? "bg-[var(--accent)] text-black shadow-[0_0_25px_var(--accent-glow)]" : active ? "bg-white/8" : ""}`}>{item.icon}</span>{item.label}</Link>;

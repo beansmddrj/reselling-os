@@ -91,7 +91,7 @@ function Field({ label, name, value, onChange, required, ...props }: {
   );
 }
 
-export function SmartIntake() {
+export function SmartIntake({ sourceShipmentId, defaultCost }: { sourceShipmentId?: string; defaultCost?: string }) {
   const [form, setForm] = useState<IntakeDraftForm | null>(null);
   const [photos, setPhotos] = useState<IntakePhoto[]>([]);
   const [saveState, setSaveState] = useState<SaveState>("restoring");
@@ -118,7 +118,12 @@ export function SmartIntake() {
         }
       }));
       if (!active) return;
-      setForm(saved?.form ?? emptyDraft());
+      const fresh = emptyDraft();
+      if (sourceShipmentId && !saved) {
+        fresh.sourceShipmentId = sourceShipmentId;
+        fresh.acquisitionCost = defaultCost ?? "";
+      }
+      setForm(saved?.form ?? fresh);
       setPhotos(restoredPhotos);
       setSaveState(saved ? "local" : "synced");
       setMessage(saved ? "Draft restored from this device" : "Ready");

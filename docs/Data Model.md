@@ -25,3 +25,12 @@ Explicit owner preferences plus platform-specific strategy settings. Learned rec
 
 ## Intake Draft
 Recoverable work-in-progress state for mobile Intake, including photos and completed/remaining steps.
+
+## Incoming Shipment
+The operational record for a buy before goods enter inventory: supplier/reference, expected and received piece counts, lifecycle status, visibility, dates, packages, receiving history, and the eventual handoff to Inventory Units.
+
+## Shipment Financials
+Owner-only capital plan associated with an Incoming Shipment: purchase, shipping, taxes, duties, insurance, other landed costs, and optional projected revenue. It is deliberately separate from operating expenses and realized sales.
+
+## Package and Receipt
+A shipment can have several packages. A receipt is an append-only actual count (with optional exception), so "delivered" never falsely means the goods were received correctly.

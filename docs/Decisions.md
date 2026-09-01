@@ -27,3 +27,11 @@ Shared workspace members may see operational sale facts (item, marketplace, date
 ## 2026-09-01 — Standalone operating expenses
 
 Owner-only operating expenses are recorded separately from sales so historical spending, subscriptions, sourcing, taxes, shipping, and personal draws reduce actual owner net profit without rewriting an item’s sale record or COGS.
+
+## 2026-09-01 — Incoming shipments are first-class operations
+
+Incoming shipments track the purchase-to-receiving period before inventory exists. They record expected vs actual pieces, packages, exceptions, and a direct Intake handoff. Delivery is not treated as receipt, and inventory is never auto-created from a tracking update.
+
+## 2026-09-01 — Protect shipment capital and projections
+
+Shipment landed cost and projected revenue are owner-only records, stored separately from shared logistics. Inbound capital is not automatically added to operating expenses or realized profit, preventing the same cost from being counted twice when units are eventually sold.

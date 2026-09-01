@@ -13,6 +13,7 @@ export type IntakeDraftForm = {
   acquisitionCost: string;
   askingPrice: string;
   storageLocation: string;
+  sourceShipmentId: string;
 };
 
 export type IntakePhoto = {
@@ -50,4 +51,5 @@ export const emptyDraft = (): IntakeDraftForm => ({
   acquisitionCost: "",
   askingPrice: "",
   storageLocation: "",
+  sourceShipmentId: "",
 });
