@@ -15,7 +15,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
 
   const productIds = [...new Set(unitsResult.data.map((unit) => unit.product_id))];
   const [productsResult, listingsResult] = productIds.length ? await Promise.all([
-    supabase.from("products").select("id, name, is_template").eq("owner_id", ownerId).in("id", productIds),
+    supabase.from("products").select("id, name, is_template, restock_status").eq("owner_id", ownerId).in("id", productIds),
     supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
   ]) : [{ data: [], error: null }, { data: [], error: null }];
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
@@ -35,7 +35,11 @@ export async function getSalesOverview(): Promise<SalesOverview> {
     };
     return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, ...costs, profitCents: calculateProfitCents(costs), soldAt: sale.sold_at };
   });
-  const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => unit.status !== "sold").map((unit) => {
+  const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => {
+    if (unit.status === "sold") return false;
+    const product = products.get(unit.product_id);
+    return !product?.is_template || !["temporarily_out", "restock_soon", "restock_asap"].includes(product.restock_status);
+  }).map((unit) => {
     const listing = listings.get(unit.product_id);
     const product = products.get(unit.product_id);
     return { id: unit.id, name: product?.name ?? "Inventory item", sku: unit.sku, status: unit.status, acquisitionCostCents: unit.acquisition_cost_cents, askingPriceCents: listing?.asking_price_cents ?? null, platform: listing?.platform ?? null, sellMultiple: product?.is_template ?? false };

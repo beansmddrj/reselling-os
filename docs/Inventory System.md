@@ -26,6 +26,8 @@ Show reusable product information, available units, listings, current asking pri
 
 Repeatable products reuse one listing while preserving unit-level history. When `Sell multiple` is enabled, completing a sale consumes the selected unit and automatically creates its replacement with a new SKU, copied unit cost, storage location, and workflow status.
 
+Repeatable units are grouped into one inventory card showing available and sold counts. A product-level restock status communicates `In stock`, `Temporarily out`, `Restock soon`, `Restock ASAP`, or `Don't restock`. Out-of-stock and pending-restock products cannot record another sale until returned to In stock; Don't restock allows the current final sale and then ends the reusable listing without rolling another unit forward.
+
 ## History
 Persist meaningful lifecycle events such as creation, confirmation, listing generation, posting, price changes, sales, and later returns/write-offs. Historical records must remain auditable and should not be silently rewritten by later template changes.
 

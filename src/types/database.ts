@@ -10,8 +10,8 @@ export type Database = {
         Relationships: [];
       };
       products: {
-        Row: { id: string; owner_id: string; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; is_template: boolean; default_asking_price_cents: number | null; default_cost_cents: number | null; created_at: string; updated_at: string };
-        Insert: { id?: string; owner_id: string; name: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; is_template?: boolean; default_asking_price_cents?: number | null; default_cost_cents?: number | null; created_at?: string; updated_at?: string };
+        Row: { id: string; owner_id: string; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; is_template: boolean; restock_status: string; default_asking_price_cents: number | null; default_cost_cents: number | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; name: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; is_template?: boolean; restock_status?: string; default_asking_price_cents?: number | null; default_cost_cents?: number | null; created_at?: string; updated_at?: string };
         Update: Partial<Database["public"]["Tables"]["products"]["Insert"]>;
         Relationships: [];
       };
@@ -113,6 +113,10 @@ export type Database = {
           sale_sold_at: string;
         };
         Returns: string;
+      };
+      set_product_restock_status: {
+        Args: { target_unit_id: string; new_restock_status: string };
+        Returns: undefined;
       };
     };
     Enums: {

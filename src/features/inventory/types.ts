@@ -1,6 +1,7 @@
 import type { Database } from "@/types/database";
 
 export type InventoryStatus = Database["public"]["Enums"]["inventory_status"];
+export type RestockStatus = "in_stock" | "temporarily_out" | "restock_soon" | "restock_asap" | "do_not_restock";
 
 export type InventoryListItem = {
   id: string;
@@ -17,10 +18,13 @@ export type InventoryListItem = {
   acquiredAt: string;
   leadPhotoUrl: string | null;
   listingPlatform: string | null;
+  sellMultiple: boolean;
+  restockStatus: RestockStatus;
+  availableCount: number;
+  soldCount: number;
 };
 
 export type InventoryDetail = InventoryListItem & {
-  sellMultiple: boolean;
   nextRepeatUnitId: string | null;
   size: string | null;
   color: string | null;

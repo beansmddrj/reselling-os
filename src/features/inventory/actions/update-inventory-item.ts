@@ -24,9 +24,11 @@ export async function updateInventoryItemAction(
   const listingTitle = text(formData, "listingTitle");
   const unitCostCents = moneyToCents(text(formData, "acquisitionCost"));
   const askingPriceCents = moneyToCents(text(formData, "askingPrice"));
+  const restockStatus = text(formData, "restockStatus");
   if (!/^[0-9a-f-]{36}$/i.test(unitId)) return { status: "error", message: "This inventory item is invalid." };
   if (!productName || !listingTitle) return { status: "error", message: "Product name and listing title are required." };
   if (unitCostCents === null || askingPriceCents === null) return { status: "error", message: "Enter valid non-negative cost and asking prices." };
+  if (!["in_stock", "temporarily_out", "restock_soon", "restock_asap", "do_not_restock"].includes(restockStatus)) return { status: "error", message: "Choose a valid restock status." };
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("update_inventory_item", {
@@ -46,6 +48,8 @@ export async function updateInventoryItemAction(
     listing_asking_price_cents: askingPriceCents,
   });
   if (error) return { status: "error", message: error.message };
+  const { error: restockError } = await supabase.rpc("set_product_restock_status", { target_unit_id: unitId, new_restock_status: restockStatus });
+  if (restockError) return { status: "error", message: restockError.message };
 
   revalidatePath("/inventory");
   revalidatePath(`/inventory/${unitId}`);
