@@ -20,6 +20,7 @@ export type InventoryListItem = {
   listingPlatform: string | null;
   sellMultiple: boolean;
   restockStatus: RestockStatus;
+  archived: boolean;
   availableCount: number;
   soldCount: number;
 };

@@ -15,7 +15,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
 
   const productIds = [...new Set(unitsResult.data.map((unit) => unit.product_id))];
   const [productsResult, listingsResult] = productIds.length ? await Promise.all([
-    supabase.from("products").select("id, name, is_template, restock_status").eq("owner_id", ownerId).in("id", productIds),
+    supabase.from("products").select("id, name, is_template, restock_status, archived_at").eq("owner_id", ownerId).in("id", productIds),
     supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
   ]) : [{ data: [], error: null }, { data: [], error: null }];
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
@@ -38,6 +38,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => {
     if (unit.status === "sold") return false;
     const product = products.get(unit.product_id);
+    if (product?.archived_at) return false;
     return !product?.is_template || !["temporarily_out", "restock_soon", "restock_asap"].includes(product.restock_status);
   }).map((unit) => {
     const listing = listings.get(unit.product_id);
@@ -49,7 +50,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   return {
     sales, candidates, revenueCents, profitCents,
     averageSaleCents: sales.length ? Math.round(revenueCents / sales.length) : 0,
-    activeInventoryCount: unitsResult.data.filter((unit) => unit.status === "active").length,
-    readyInventoryCount: unitsResult.data.filter((unit) => unit.status === "ready").length,
+    activeInventoryCount: unitsResult.data.filter((unit) => unit.status === "active" && !products.get(unit.product_id)?.archived_at).length,
+    readyInventoryCount: unitsResult.data.filter((unit) => unit.status === "ready" && !products.get(unit.product_id)?.archived_at).length,
   };
 }

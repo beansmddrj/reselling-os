@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getInventoryDetail } from "@/features/inventory/data/inventory-repository";
 import { DeleteInventoryButton } from "@/features/inventory/components/delete-inventory-dialog";
 import { InventoryLifecycleActions } from "@/features/inventory/components/inventory-lifecycle-actions";
+import { ArchiveInventoryButton } from "@/features/inventory/components/archive-inventory-button";
 
 export const metadata: Metadata = { title: "Inventory item" };
 export const dynamic = "force-dynamic";
@@ -43,6 +44,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
       </div>
       <InventoryLifecycleActions unitId={item.id} status={item.status} externalUrl={item.listing?.externalUrl ?? null} sellMultiple={item.sellMultiple} nextRepeatUnitId={item.nextRepeatUnitId} restockStatus={item.restockStatus}/>
       <section className="surface rounded-[2rem] p-6 sm:p-7"><div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Listing</p><h2 className="mt-2 text-xl font-semibold">{item.listing?.title || "No listing created"}</h2></div>{item.listing && <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--muted)]">{item.listing.status}</span>}</div>{item.listing?.description && <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[var(--muted)]">{item.listing.description}</p>}<p className="mt-5 text-xs text-[var(--muted)]">{item.status === "active" ? "This listing is recorded as live on its marketplace." : "Nothing here has been posted to a marketplace."}</p></section>
+      <section className="surface rounded-[2rem] p-5 sm:p-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--accent)]">{item.archived ? "Archived" : "Keep for later"}</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.archived ? "This listing is hidden from daily inventory and sales, but all content and history are preserved." : "Hide this listing from daily inventory and sales without deleting its photos, copy, or history."}</p></div><ArchiveInventoryButton unitId={item.id} archived={item.archived}/></div></section>
       <section className="rounded-[2rem] border border-red-400/15 bg-red-400/[.035] p-5 sm:p-6"><p className="text-xs font-semibold uppercase tracking-[.16em] text-red-300">Danger zone</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">Permanently remove this physical item and, when it is the final unit, its product and listing draft.</p><div className="mt-4 max-w-xs"><DeleteInventoryButton target={{ id: item.id, name: item.name, status: item.status }}/></div></section>
     </div>
   );

@@ -35,7 +35,7 @@ export async function listInventory(): Promise<InventoryListItem[]> {
 
   const productIds = [...new Set(units.map((unit) => unit.product_id))];
   const [productsResult, listingsResult, photosResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, condition, is_template, restock_status").eq("owner_id", ownerId).in("id", productIds),
+    supabase.from("products").select("id, name, brand, category, condition, is_template, restock_status, archived_at").eq("owner_id", ownerId).in("id", productIds),
     supabase.from("listings").select("id, product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
     supabase.from("product_photos").select("id, product_id, storage_path, position").eq("owner_id", ownerId).in("product_id", productIds).eq("position", 0),
   ]);
@@ -79,6 +79,7 @@ export async function listInventory(): Promise<InventoryListItem[]> {
       listingPlatform: listing?.platform ?? null,
       sellMultiple: product.is_template,
       restockStatus: product.restock_status as InventoryListItem["restockStatus"],
+      archived: product.archived_at !== null,
       availableCount: productUnits.filter((candidate) => candidate.status !== "sold").length,
       soldCount: productUnits.filter((candidate) => candidate.status === "sold").length,
     }];
@@ -97,7 +98,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   if (!unit) return null;
 
   const [productResult, listingsResult, photosResult, siblingUnitsResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
+    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status, archived_at").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("position"),
     supabase.from("inventory_units").select("id, status").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
@@ -121,6 +122,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     description: productResult.data.description,
     sellMultiple: productResult.data.is_template,
     restockStatus: productResult.data.restock_status as InventoryDetail["restockStatus"],
+    archived: productResult.data.archived_at !== null,
     availableCount: siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold").length,
     soldCount: siblingUnitsResult.data.filter((candidate) => candidate.status === "sold").length,
     nextRepeatUnitId: siblingUnitsResult.data.find((candidate) => candidate.status !== "sold")?.id ?? null,
