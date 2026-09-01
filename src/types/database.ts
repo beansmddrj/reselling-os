@@ -80,6 +80,10 @@ export type Database = {
         Args: { target_unit_id: string };
         Returns: string[];
       };
+      transition_inventory_item: {
+        Args: { target_unit_id: string; target_status: Database["public"]["Enums"]["inventory_status"]; listing_external_url?: string | null };
+        Returns: undefined;
+      };
     };
     Enums: {
       inventory_status: "draft" | "ready" | "active" | "sold";

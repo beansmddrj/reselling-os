@@ -35,4 +35,4 @@ Product, unit, and listing-draft fields can be edited from the detail view throu
 
 Unsold physical units can be permanently deleted from the quick-actions menu or the item-detail danger zone after an explicit confirmation. Sold units are protected. When the deleted unit is the product's final unit, its product, listing draft, database photo records, and private Storage objects are also removed; shared product data remains while other units exist.
 
-Workflow-driven status transitions remain later work; editing does not imply that a marketplace post occurred.
+Workflow-driven transitions now move an item from Draft to Ready only after its required listing fields and photo are complete, from Ready to Active only when a marketplace URL is recorded, and from Active back to Ready when a listing is paused or ended. Every transition updates the unit and listing atomically and appends a business event. Sold remains reserved for the Sales workflow; editing alone never implies that a marketplace post occurred.

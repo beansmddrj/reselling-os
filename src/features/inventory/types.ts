@@ -31,5 +31,6 @@ export type InventoryDetail = InventoryListItem & {
     title: string;
     description: string | null;
     askingPriceCents: number;
+    externalUrl: string | null;
   } | null;
 };
