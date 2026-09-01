@@ -85,14 +85,16 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   if (unitError) throw new Error(`Inventory item could not be loaded: ${unitError.message}`);
   if (!unit) return null;
 
-  const [productResult, listingsResult, photosResult] = await Promise.all([
+  const [productResult, listingsResult, photosResult, nextUnitResult] = await Promise.all([
     supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("position"),
+    supabase.from("inventory_units").select("id").eq("owner_id", ownerId).eq("product_id", unit.product_id).neq("status", "sold").order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
   if (productResult.error) throw new Error(`Product could not be loaded: ${productResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listing could not be loaded: ${listingsResult.error.message}`);
   if (photosResult.error) throw new Error(`Photos could not be loaded: ${photosResult.error.message}`);
+  if (nextUnitResult.error) throw new Error(`Next repeatable unit could not be loaded: ${nextUnitResult.error.message}`);
 
   const signedPhotos = await signPhotoPaths(supabase, photosResult.data.map((photo) => photo.storage_path));
   const listing = listingsResult.data;
@@ -107,6 +109,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     condition: productResult.data.condition,
     description: productResult.data.description,
     sellMultiple: productResult.data.is_template,
+    nextRepeatUnitId: nextUnitResult.data?.id ?? null,
     sku: unit.sku,
     status: unit.status,
     acquisitionCostCents: unit.acquisition_cost_cents,

@@ -5,10 +5,10 @@ import Link from "next/link";
 import { transitionInventoryItemAction, type InventoryTransitionState } from "@/features/inventory/actions/transition-inventory-item";
 import type { InventoryStatus } from "@/features/inventory/types";
 
-export function InventoryLifecycleActions({ unitId, status, externalUrl }: { unitId: string; status: InventoryStatus; externalUrl: string | null }) {
+export function InventoryLifecycleActions({ unitId, status, externalUrl, sellMultiple, nextRepeatUnitId }: { unitId: string; status: InventoryStatus; externalUrl: string | null; sellMultiple: boolean; nextRepeatUnitId: string | null }) {
   const initialState: InventoryTransitionState = { status: "idle", message: "" };
   const [state, action, pending] = useActionState(transitionInventoryItemAction, initialState);
-  if (status === "sold") return null;
+  if (status === "sold") return sellMultiple && nextRepeatUnitId ? <section className="surface rounded-[2rem] p-6 sm:p-7"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Sell another</p><h2 className="mt-2 text-xl font-semibold">The next unit is ready</h2><p className="mt-2 text-sm leading-6 text-[var(--muted)]">This sale stays locked in history. Record another sale against the fresh unit while reusing the same product and listing.</p><div className="mt-5 flex flex-wrap gap-3"><Link href={`/sales/record?unitId=${nextRepeatUnitId}`} className="grid min-h-12 place-items-center rounded-2xl bg-[var(--accent)] px-6 text-sm font-bold text-black">Record another sale</Link><Link href={`/inventory/${nextRepeatUnitId}`} className="grid min-h-12 place-items-center rounded-2xl border border-white/10 px-6 text-sm font-semibold">View next unit</Link></div></section> : null;
 
   return (
     <section className="surface rounded-[2rem] p-6 sm:p-7">

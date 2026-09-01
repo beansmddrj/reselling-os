@@ -21,6 +21,7 @@ export type InventoryListItem = {
 
 export type InventoryDetail = InventoryListItem & {
   sellMultiple: boolean;
+  nextRepeatUnitId: string | null;
   size: string | null;
   color: string | null;
   description: string | null;
