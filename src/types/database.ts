@@ -100,6 +100,19 @@ export type Database = {
         Args: { invite_id: string };
         Returns: undefined;
       };
+      record_inventory_sale: {
+        Args: {
+          target_unit_id: string;
+          sale_platform: Database["public"]["Enums"]["marketplace_platform"];
+          sale_price_cents: number;
+          platform_fee_cents: number;
+          payment_fee_cents: number;
+          shipping_cost_cents: number;
+          other_cost_cents: number;
+          sale_sold_at: string;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       inventory_status: "draft" | "ready" | "active" | "sold";

@@ -21,3 +21,9 @@ Financial calculations are deterministic application code, not LLM output.
 Every dashboard total must be traceable to underlying transactions. AI may explain financial information but may not invent or silently alter it.
 
 Recording a sale consumes the correct physical inventory unit and transitions it to `SOLD`.
+
+## Implemented workflow
+
+Sales can be recorded from an active inventory item or from the Sales ledger. The database records the sale, snapshots the unit cost as COGS, moves the inventory unit and its latest listing to `sold`, and appends a business event in one transaction. Sold inventory cannot be recorded twice or deleted.
+
+The Sales ledger and Home dashboard calculate revenue and realized profit directly from stored sale rows. Empty financial fields are stored as zero; sale price and timestamp are required.
