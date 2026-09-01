@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getInventoryDetail } from "@/features/inventory/data/inventory-repository";
+import { DeleteInventoryButton } from "@/features/inventory/components/delete-inventory-dialog";
 
 export const metadata: Metadata = { title: "Inventory item" };
 export const dynamic = "force-dynamic";
@@ -40,6 +41,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
         </section>
       </div>
       <section className="surface rounded-[2rem] p-6 sm:p-7"><div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Listing draft</p><h2 className="mt-2 text-xl font-semibold">{item.listing?.title || "No listing created"}</h2></div>{item.listing && <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--muted)]">{item.listing.status}</span>}</div>{item.listing?.description && <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[var(--muted)]">{item.listing.description}</p>}<p className="mt-5 text-xs text-[var(--muted)]">Nothing here has been posted to a marketplace.</p></section>
+      <section className="rounded-[2rem] border border-red-400/15 bg-red-400/[.035] p-5 sm:p-6"><p className="text-xs font-semibold uppercase tracking-[.16em] text-red-300">Danger zone</p><p className="mt-2 text-sm leading-6 text-[var(--muted)]">Permanently remove this physical item and, when it is the final unit, its product and listing draft.</p><div className="mt-4 max-w-xs"><DeleteInventoryButton target={{ id: item.id, name: item.name, status: item.status }}/></div></section>
     </div>
   );
 }

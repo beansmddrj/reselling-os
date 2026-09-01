@@ -76,6 +76,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      delete_inventory_item: {
+        Args: { target_unit_id: string };
+        Returns: string[];
+      };
     };
     Enums: {
       inventory_status: "draft" | "ready" | "active" | "sold";

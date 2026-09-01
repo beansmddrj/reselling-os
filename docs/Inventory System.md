@@ -33,4 +33,6 @@ Inventory reads the authenticated owner's physical units from Supabase and compo
 
 Product, unit, and listing-draft fields can be edited from the detail view through one atomic owner-scoped database function, with a business event recorded after success. Inventory cards expose the same non-destructive quick actions through desktop right-click and a visible three-dot control for touch and keyboard access.
 
+Unsold physical units can be permanently deleted from the quick-actions menu or the item-detail danger zone after an explicit confirmation. Sold units are protected. When the deleted unit is the product's final unit, its product, listing draft, database photo records, and private Storage objects are also removed; shared product data remains while other units exist.
+
 Workflow-driven status transitions remain later work; editing does not imply that a marketplace post occurred.
