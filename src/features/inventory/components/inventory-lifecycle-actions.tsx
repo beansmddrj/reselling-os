@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { initialInventoryTransitionState, transitionInventoryItemAction } from "@/features/inventory/actions/transition-inventory-item";
+import { transitionInventoryItemAction, type InventoryTransitionState } from "@/features/inventory/actions/transition-inventory-item";
 import type { InventoryStatus } from "@/features/inventory/types";
 
 export function InventoryLifecycleActions({ unitId, status, externalUrl }: { unitId: string; status: InventoryStatus; externalUrl: string | null }) {
-  const [state, action, pending] = useActionState(transitionInventoryItemAction, initialInventoryTransitionState);
+  const initialState: InventoryTransitionState = { status: "idle", message: "" };
+  const [state, action, pending] = useActionState(transitionInventoryItemAction, initialState);
   if (status === "sold") return null;
 
   return (

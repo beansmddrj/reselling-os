@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export type InventoryEditState = { status: "idle" | "success" | "error"; message: string };
-export const initialInventoryEditState: InventoryEditState = { status: "idle", message: "" };
 
 function text(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();

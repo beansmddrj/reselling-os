@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { InventoryStatus } from "@/features/inventory/types";
 
 export type InventoryTransitionState = { status: "idle" | "success" | "error"; message: string };
-export const initialInventoryTransitionState: InventoryTransitionState = { status: "idle", message: "" };
 
 export async function transitionInventoryItemAction(
   _previous: InventoryTransitionState,

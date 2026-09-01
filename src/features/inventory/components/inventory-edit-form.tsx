@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
-import { initialInventoryEditState, updateInventoryItemAction } from "@/features/inventory/actions/update-inventory-item";
+import { updateInventoryItemAction, type InventoryEditState } from "@/features/inventory/actions/update-inventory-item";
 import type { InventoryDetail } from "@/features/inventory/types";
 
 function Field({ label, name, defaultValue, required, ...props }: {
@@ -17,7 +17,8 @@ function Field({ label, name, defaultValue, required, ...props }: {
 
 export function InventoryEditForm({ item }: { item: InventoryDetail }) {
   const router = useRouter();
-  const [state, action, pending] = useActionState(updateInventoryItemAction, initialInventoryEditState);
+  const initialState: InventoryEditState = { status: "idle", message: "" };
+  const [state, action, pending] = useActionState(updateInventoryItemAction, initialState);
 
   useEffect(() => {
     if (state.status !== "success") return;
