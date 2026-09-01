@@ -33,6 +33,12 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["sales"]["Insert"]>;
         Relationships: [];
       };
+      business_expenses: {
+        Row: { id: string; owner_id: string; category: string; amount_cents: number; description: string; occurred_on: string; created_at: string };
+        Insert: { id?: string; owner_id: string; category: string; amount_cents: number; description: string; occurred_on: string; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["business_expenses"]["Insert"]>;
+        Relationships: [];
+      };
       business_events: {
         Row: { id: string; owner_id: string; event_type: string; entity_type: string | null; entity_id: string | null; actor_id: string | null; metadata: Json; occurred_at: string };
         Insert: { id?: string; owner_id: string; event_type: string; entity_type?: string | null; entity_id?: string | null; actor_id?: string | null; metadata?: Json; occurred_at?: string };

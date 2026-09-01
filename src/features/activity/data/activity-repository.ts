@@ -9,6 +9,7 @@ const labels: Record<string, string> = {
   inventory_transitioned: "Changed an inventory status", inventory_deleted: "Deleted an inventory item",
   sale_recorded: "Recorded a sale", product_archived: "Archived a listing",
   product_restored: "Restored a listing", restock_status_changed: "Changed a restock status",
+  expense_recorded: "Recorded a private expense",
   business_invite_created: "Invited a teammate", business_invite_accepted: "Joined the workspace",
 };
 

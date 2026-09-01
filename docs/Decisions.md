@@ -23,3 +23,7 @@ Authentication remains per-person; passwords and sessions are never shared. Exis
 # Owner-only sale finances
 
 Shared workspace members may see operational sale facts (item, marketplace, date, and sale amount), while COGS, platform/payment fees, shipping, other costs, profit, and aggregate financial reporting are owner-only. PostgreSQL column privileges enforce this boundary; it is not only a UI convention. Team activity similarly exposes safe event fields without raw metadata.
+
+## 2026-09-01 — Standalone operating expenses
+
+Owner-only operating expenses are recorded separately from sales so historical spending, subscriptions, sourcing, taxes, shipping, and personal draws reduce actual owner net profit without rewriting an item’s sale record or COGS.

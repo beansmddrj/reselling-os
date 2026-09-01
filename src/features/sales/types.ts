@@ -38,4 +38,14 @@ export type SalesOverview = {
   activeInventoryCount: number;
   readyInventoryCount: number;
   isOwner: boolean;
+  expenses: BusinessExpense[];
+  operatingExpenseCents: number;
+};
+
+export type BusinessExpense = {
+  id: string;
+  category: "supplies" | "travel" | "subscription" | "shipping" | "taxes" | "personal_draw" | "historical_adjustment" | "other";
+  amountCents: number;
+  description: string;
+  occurredOn: string;
 };
