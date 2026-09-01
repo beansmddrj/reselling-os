@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { TeamPanel } from "@/features/team/components/team-panel";
+import { getTeamPanelData } from "@/features/team/data/team-repository";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const team = await getTeamPanelData();
   return (
     <div className="space-y-7">
       <section className="noise surface relative overflow-hidden rounded-[2rem] p-6 sm:p-8">
@@ -21,6 +26,7 @@ export default function Home() {
         <article className="surface rounded-[2rem] p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-semibold">Recent sales</p><p className="mt-1 text-xs text-[var(--muted)]">Real transactions will appear here.</p></div><Link href="/sales" className="text-xs font-semibold text-[var(--accent)]">Open sales</Link></div><div className="mt-8 grid min-h-40 place-items-center rounded-2xl border border-dashed border-white/10 bg-black/10 text-center"><div><div className="mx-auto grid size-11 place-items-center rounded-2xl bg-white/5 text-xl">↗</div><p className="mt-3 text-sm font-medium">No sales yet</p><p className="mt-1 text-xs text-[var(--muted)]">Your first completed sale starts the ledger.</p></div></div></article>
         <article className="surface rounded-[2rem] p-6"><p className="text-sm font-semibold">Needs attention</p><p className="mt-1 text-xs text-[var(--muted)]">Only real workflow issues show here.</p><div className="mt-8 rounded-2xl bg-emerald-400/[.06] p-4"><div className="flex items-center gap-2 text-sm font-medium"><span className="size-2 rounded-full bg-emerald-400"/>All clear</div><p className="mt-2 text-xs leading-5 text-[var(--muted)]">No incomplete drafts, stale listings, or missing costs.</p></div></article>
       </section>
+      <TeamPanel team={team}/>
     </div>
   );
 }

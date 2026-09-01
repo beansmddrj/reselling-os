@@ -17,3 +17,6 @@ Purchasing automation and Opportunity Radar are deliberately deferred until core
 
 ## 2026-08-31 — Mobile first
 Smart Intake is designed for iPhone first. Repeated taps, keyboard/focus problems, lost drafts, and unnecessary confirmation dialogs are considered product bugs, not polish items.
+
+## 2026-09-01 — Shared business workspace
+Authentication remains per-person; passwords and sessions are never shared. Existing owner IDs continue to identify the business record for v0.1, while an explicit membership table grants invited collaborators access to that owner’s inventory, intake drafts, listings, photos, sales, and events. Invitations are matched against the trusted email claim in Supabase Auth and must be accepted by the recipient. The owner can remove a collaborator at any time.

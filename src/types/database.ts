@@ -51,6 +51,18 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["product_photos"]["Insert"]>;
         Relationships: [];
       };
+      business_members: {
+        Row: { business_owner_id: string; user_id: string; role: Database["public"]["Enums"]["business_role"]; joined_at: string };
+        Insert: { business_owner_id: string; user_id: string; role: Database["public"]["Enums"]["business_role"]; joined_at?: string };
+        Update: Partial<Database["public"]["Tables"]["business_members"]["Insert"]>;
+        Relationships: [];
+      };
+      business_invites: {
+        Row: { id: string; business_owner_id: string; email: string; invited_by: string; accepted_at: string | null; created_at: string };
+        Insert: { id?: string; business_owner_id: string; email: string; invited_by: string; accepted_at?: string | null; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["business_invites"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -84,12 +96,17 @@ export type Database = {
         Args: { target_unit_id: string; target_status: Database["public"]["Enums"]["inventory_status"]; listing_external_url?: string | null };
         Returns: undefined;
       };
+      accept_business_invite: {
+        Args: { invite_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       inventory_status: "draft" | "ready" | "active" | "sold";
       listing_status: "draft" | "ready" | "active" | "ended" | "sold";
       marketplace_platform: "facebook" | "ebay" | "other";
       intake_step: "photos" | "review";
+      business_role: "owner" | "member";
     };
     CompositeTypes: Record<string, never>;
   };

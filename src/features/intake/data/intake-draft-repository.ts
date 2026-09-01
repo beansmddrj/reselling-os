@@ -17,6 +17,14 @@ export async function saveRemoteDraft(form: IntakeDraftForm, photos: IntakePhoto
   const supabase = createClient();
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) throw new Error("Sign in to sync this draft. It is still saved on this device.");
+  const { data: memberships, error: membershipError } = await supabase
+    .from("business_members")
+    .select("business_owner_id, role, joined_at")
+    .eq("user_id", auth.user.id)
+    .order("joined_at");
+  if (membershipError || !memberships?.length) throw new Error("Your business workspace could not be loaded. This draft is still saved on this device.");
+  const membership = memberships.find((item) => item.role === "member") ?? memberships[0];
+  const businessOwnerId = membership.business_owner_id;
 
   const syncedPhotos: IntakePhoto[] = [];
   for (const photo of photos) {
@@ -24,7 +32,7 @@ export async function saveRemoteDraft(form: IntakeDraftForm, photos: IntakePhoto
       syncedPhotos.push(photo);
       continue;
     }
-    const storagePath = `${auth.user.id}/${form.id}/${photo.id}-${safeFileName(photo.name)}`;
+    const storagePath = `${businessOwnerId}/${form.id}/${photo.id}-${safeFileName(photo.name)}`;
     const { error } = await supabase.storage.from(BUCKET).upload(storagePath, photo.file, {
       contentType: photo.type,
       upsert: true,
@@ -35,7 +43,7 @@ export async function saveRemoteDraft(form: IntakeDraftForm, photos: IntakePhoto
 
   const { error } = await supabase.from("intake_drafts").upsert({
     id: form.id,
-    owner_id: auth.user.id,
+    owner_id: businessOwnerId,
     step: form.step,
     name: form.name,
     brand: form.brand || null,

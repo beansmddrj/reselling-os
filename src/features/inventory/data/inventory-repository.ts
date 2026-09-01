@@ -2,15 +2,13 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import type { InventoryDetail, InventoryListItem } from "@/features/inventory/types";
+import { getBusinessContext } from "@/features/team/data/business-context";
 
 const PHOTO_BUCKET = "intake-photos";
 const PHOTO_URL_LIFETIME_SECONDS = 60 * 60;
 
 async function getOwnerClient() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
-  const ownerId = data?.claims?.sub;
-  if (error || !ownerId) throw new Error("Your session could not be verified. Sign in again.");
+  const { supabase, ownerId } = await getBusinessContext();
   return { supabase, ownerId };
 }
 
