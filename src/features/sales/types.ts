@@ -26,6 +26,7 @@ export type SaleLedgerItem = {
   shippingCostCents: number | null;
   otherCostCents: number | null;
   profitCents: number | null;
+  soldMomentCount: number;
   soldAt: string;
 };
 

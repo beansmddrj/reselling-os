@@ -14,7 +14,7 @@ function fileName(file: File) {
   return `${crypto.randomUUID()}.${extension && /^[a-z0-9]+$/.test(extension) ? extension : "jpg"}`;
 }
 
-export function SaleMomentCapture({ saleId, productName, repeatable }: { saleId: string; productName: string; repeatable: boolean }) {
+export function SaleMomentCapture({ saleId, productName, repeatable, existingMomentUrl }: { saleId: string; productName: string; repeatable: boolean; existingMomentUrl?: string | null }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -22,6 +22,7 @@ export function SaleMomentCapture({ saleId, productName, repeatable }: { saleId:
   const [momentType, setMomentType] = useState<MomentType>("item");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  if (existingMomentUrl) return <div className="surface overflow-hidden rounded-[2rem]"><img src={existingMomentUrl} alt={`Sold Moment for ${productName}`} className="max-h-[40rem] w-full object-contain bg-black"/><div className="p-5 sm:p-7"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Sold Moment</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Archived with this sale.</h1><p className="mt-2 text-sm leading-6 text-[var(--muted)]">{productName} · This photo is stored for your later social-content workflow and was not posted anywhere.</p><button type="button" onClick={() => { router.replace("/sales?recorded=1"); router.refresh(); }} className="mt-6 min-h-12 rounded-2xl bg-[var(--accent)] px-5 text-sm font-bold text-black">Back to sales</button></div></div>;
   function skip() { router.replace("/sales?recorded=1"); router.refresh(); }
   function choose(next: File | undefined) {
     setError("");

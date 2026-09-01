@@ -19,17 +19,22 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   if (expensesResult.error) throw new Error(`Expenses could not be loaded: ${expensesResult.error.message}`);
 
   const productIds = [...new Set(unitsResult.data.map((unit) => unit.product_id))];
-  const [productsResult, listingsResult] = productIds.length ? await Promise.all([
+  const saleIds = salesResult.data.map((sale) => sale.id);
+  const [productsResult, listingsResult, momentsResult] = productIds.length ? await Promise.all([
     supabase.from("products").select("id, name, is_template, restock_status, archived_at").eq("owner_id", ownerId).in("id", productIds),
     supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
-  ]) : [{ data: [], error: null }, { data: [], error: null }];
+    saleIds.length ? supabase.from("sale_moments").select("sale_id").eq("owner_id", ownerId).in("sale_id", saleIds) : Promise.resolve({ data: [], error: null }),
+  ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listings could not be loaded: ${listingsResult.error.message}`);
+  if (momentsResult.error) throw new Error(`Sold Moments could not be loaded: ${momentsResult.error.message}`);
 
   const products = new Map(productsResult.data.map((product) => [product.id, product]));
   const units = new Map(unitsResult.data.map((unit) => [unit.id, unit]));
   const listings = new Map<string, (typeof listingsResult.data)[number]>();
   listingsResult.data.forEach((listing) => { if (!listings.has(listing.product_id)) listings.set(listing.product_id, listing); });
+  const momentCounts = new Map<string, number>();
+  momentsResult.data.forEach((moment) => momentCounts.set(moment.sale_id, (momentCounts.get(moment.sale_id) ?? 0) + 1));
 
   const sales: SaleLedgerItem[] = salesResult.data.map((sale) => {
     const unit = units.get(sale.inventory_unit_id);
@@ -39,7 +44,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
       otherCostCents: sale.other_cost_cents,
     } : { cogsCents: null, platformFeeCents: null, paymentFeeCents: null, shippingCostCents: null, otherCostCents: null };
     const profitCents = privateCosts.cogsCents === null ? null : calculateProfitCents({ salePriceCents: sale.sale_price_cents, cogsCents: privateCosts.cogsCents, platformFeeCents: privateCosts.platformFeeCents ?? 0, paymentFeeCents: privateCosts.paymentFeeCents ?? 0, shippingCostCents: privateCosts.shippingCostCents ?? 0, otherCostCents: privateCosts.otherCostCents ?? 0 });
-    return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, salePriceCents: sale.sale_price_cents, ...privateCosts, profitCents, soldAt: sale.sold_at };
+    return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, salePriceCents: sale.sale_price_cents, ...privateCosts, profitCents, soldAt: sale.sold_at, soldMomentCount: momentCounts.get(sale.id) ?? 0 };
   });
   const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => {
     if (unit.status === "sold") return false;

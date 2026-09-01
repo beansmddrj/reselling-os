@@ -5,6 +5,7 @@ import { getInventoryDetail } from "@/features/inventory/data/inventory-reposito
 import { DeleteInventoryButton } from "@/features/inventory/components/delete-inventory-dialog";
 import { InventoryLifecycleActions } from "@/features/inventory/components/inventory-lifecycle-actions";
 import { ArchiveInventoryButton } from "@/features/inventory/components/archive-inventory-button";
+import { RepeatableQuantityControls } from "@/features/inventory/components/repeatable-quantity-controls";
 
 export const metadata: Metadata = { title: "Inventory item" };
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ export default async function InventoryDetailPage({ params }: { params: Promise<
           <p className="mt-2 text-sm text-[var(--muted)]">{[item.brand, item.category, item.condition].filter(Boolean).join(" · ") || item.sku}</p>
           <div className="mt-7 grid grid-cols-2 gap-4 rounded-2xl bg-black/20 p-4"><div><p className="text-[10px] uppercase tracking-[.14em] text-[var(--muted)]">Item cost</p><p className="mt-1 text-xl font-semibold">{money.format(item.acquisitionCostCents / 100)}</p></div><div><p className="text-[10px] uppercase tracking-[.14em] text-[var(--muted)]">Asking</p><p className="mt-1 text-xl font-semibold">{item.askingPriceCents === null ? "—" : money.format(item.askingPriceCents / 100)}</p></div></div>
           <dl className="mt-7 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-white/8 pt-6"><Detail label="SKU" value={item.sku}/><Detail label="Acquired" value={date.format(new Date(item.acquiredAt))}/><Detail label="Storage" value={item.storageLocation}/><Detail label="Platform" value={item.listingPlatform}/><Detail label="Size / model" value={item.size}/><Detail label="Color" value={item.color}/>{item.sellMultiple && <><Detail label="Grouped units" value={`${item.availableCount} available · ${item.soldCount} sold`}/><Detail label="Restock" value={item.restockStatus.replaceAll("_", " ")}/></>}</dl>
+          {item.sellMultiple && <RepeatableQuantityControls unitId={item.id} availableCount={item.availableCount}/>}
           {item.description && <div className="mt-7 border-t border-white/8 pt-6"><p className="text-[10px] font-semibold uppercase tracking-[.15em] text-[var(--muted)]">Product notes</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-white/80">{item.description}</p></div>}
           <Link href={`/inventory/${item.id}/edit`} className="mt-7 grid min-h-12 w-full place-items-center rounded-2xl bg-[var(--accent)] px-5 text-sm font-bold text-black">Edit item</Link>
         </section>

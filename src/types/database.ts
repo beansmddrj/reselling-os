@@ -154,6 +154,10 @@ export type Database = {
         Args: { target_unit_id: string; should_archive: boolean };
         Returns: undefined;
       };
+      adjust_repeatable_inventory_quantity: {
+        Args: { target_unit_id: string; quantity_delta: number };
+        Returns: number;
+      };
       get_owner_sales_financials: {
         Args: { target_owner_id: string };
         Returns: { id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string }[];

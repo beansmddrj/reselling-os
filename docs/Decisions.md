@@ -39,3 +39,7 @@ Shipment landed cost and projected revenue are owner-only records, stored separa
 ## 2026-09-01 — Optional Sold Moments
 
 Recording a sale leads to an optional one-photo capture screen for real customer, item, or package imagery. It is stored privately in the workspace for later social content and is never posted automatically. Repeatable products already preserve the sold physical unit and roll a fresh available unit under the same product/listing, so Sold Moments add no duplicate inventory records.
+
+## 2026-09-01 — Repeatable listings use physical quantity controls
+
+For a Sell Multiple product, plus and minus adjust actual unsold Inventory Units beneath the same product and listing. Removing quantity never touches a completed sale; adding quantity creates a fresh physical unit using the listing’s current operational defaults. The sales ledger links directly to the one optional Sold Moment archived for each sale.
