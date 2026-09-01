@@ -24,6 +24,8 @@ Inventory should feel like browsing a clean storefront, not a spreadsheet. Prior
 ## Product detail
 Show reusable product information, available units, listings, current asking price, unit costs, and historical activity. Existing templates should support extremely fast `Add Stock` actions.
 
+Repeatable products reuse one listing while preserving unit-level history. When `Sell multiple` is enabled, completing a sale consumes the selected unit and automatically creates its replacement with a new SKU, copied unit cost, storage location, and workflow status.
+
 ## History
 Persist meaningful lifecycle events such as creation, confirmation, listing generation, posting, price changes, sales, and later returns/write-offs. Historical records must remain auditable and should not be silently rewritten by later template changes.
 

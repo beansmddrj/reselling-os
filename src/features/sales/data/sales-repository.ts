@@ -15,13 +15,13 @@ export async function getSalesOverview(): Promise<SalesOverview> {
 
   const productIds = [...new Set(unitsResult.data.map((unit) => unit.product_id))];
   const [productsResult, listingsResult] = productIds.length ? await Promise.all([
-    supabase.from("products").select("id, name").eq("owner_id", ownerId).in("id", productIds),
+    supabase.from("products").select("id, name, is_template").eq("owner_id", ownerId).in("id", productIds),
     supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
   ]) : [{ data: [], error: null }, { data: [], error: null }];
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listings could not be loaded: ${listingsResult.error.message}`);
 
-  const products = new Map(productsResult.data.map((product) => [product.id, product.name]));
+  const products = new Map(productsResult.data.map((product) => [product.id, product]));
   const units = new Map(unitsResult.data.map((unit) => [unit.id, unit]));
   const listings = new Map<string, (typeof listingsResult.data)[number]>();
   listingsResult.data.forEach((listing) => { if (!listings.has(listing.product_id)) listings.set(listing.product_id, listing); });
@@ -33,11 +33,12 @@ export async function getSalesOverview(): Promise<SalesOverview> {
       platformFeeCents: sale.platform_fee_cents, paymentFeeCents: sale.payment_fee_cents,
       shippingCostCents: sale.shipping_cost_cents, otherCostCents: sale.other_cost_cents,
     };
-    return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id) ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, ...costs, profitCents: calculateProfitCents(costs), soldAt: sale.sold_at };
+    return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, ...costs, profitCents: calculateProfitCents(costs), soldAt: sale.sold_at };
   });
   const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => unit.status !== "sold").map((unit) => {
     const listing = listings.get(unit.product_id);
-    return { id: unit.id, name: products.get(unit.product_id) ?? "Inventory item", sku: unit.sku, status: unit.status, acquisitionCostCents: unit.acquisition_cost_cents, askingPriceCents: listing?.asking_price_cents ?? null, platform: listing?.platform ?? null };
+    const product = products.get(unit.product_id);
+    return { id: unit.id, name: product?.name ?? "Inventory item", sku: unit.sku, status: unit.status, acquisitionCostCents: unit.acquisition_cost_cents, askingPriceCents: listing?.asking_price_cents ?? null, platform: listing?.platform ?? null, sellMultiple: product?.is_template ?? false };
   });
   const revenueCents = sales.reduce((sum, sale) => sum + sale.salePriceCents, 0);
   const profitCents = sales.reduce((sum, sale) => sum + sale.profitCents, 0);

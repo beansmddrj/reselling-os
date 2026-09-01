@@ -86,7 +86,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   if (!unit) return null;
 
   const [productResult, listingsResult, photosResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, size, color, condition, description").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
+    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("position"),
   ]);
@@ -106,6 +106,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     color: productResult.data.color,
     condition: productResult.data.condition,
     description: productResult.data.description,
+    sellMultiple: productResult.data.is_template,
     sku: unit.sku,
     status: unit.status,
     acquisitionCostCents: unit.acquisition_cost_cents,

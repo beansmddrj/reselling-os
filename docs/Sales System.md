@@ -27,3 +27,7 @@ Recording a sale consumes the correct physical inventory unit and transitions it
 Sales can be recorded from an active inventory item or from the Sales ledger. The database records the sale, snapshots the unit cost as COGS, moves the inventory unit and its latest listing to `sold`, and appends a business event in one transaction. Sold inventory cannot be recorded twice or deleted.
 
 The Sales ledger and Home dashboard calculate revenue and realized profit directly from stored sale rows. Empty financial fields are stored as zero; sale price and timestamp are required.
+
+## Repeatable products
+
+Products such as socks that share one long-lived listing can enable `Sell multiple` from the inventory edit screen. Each recorded sale still consumes its own inventory unit and stores its own COGS snapshot. In the same transaction, the system creates the next available unit with a new SKU and preserves the listing's current workflow status, avoiding duplicate listing setup without merging distinct sales together.

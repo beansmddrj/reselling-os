@@ -38,6 +38,7 @@ export async function updateInventoryItemAction(
     product_color: text(formData, "color"),
     product_condition: text(formData, "condition"),
     product_description: text(formData, "description"),
+    product_sell_multiple: formData.get("sellMultiple") === "on",
     unit_cost_cents: unitCostCents,
     unit_storage_location: text(formData, "storageLocation"),
     listing_title: listingTitle,

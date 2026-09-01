@@ -80,6 +80,7 @@ export type Database = {
           product_color: string;
           product_condition: string;
           product_description: string;
+          product_sell_multiple: boolean;
           unit_cost_cents: number;
           unit_storage_location: string;
           listing_title: string;

@@ -20,6 +20,7 @@ export type InventoryListItem = {
 };
 
 export type InventoryDetail = InventoryListItem & {
+  sellMultiple: boolean;
   size: string | null;
   color: string | null;
   description: string | null;

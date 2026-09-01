@@ -10,6 +10,7 @@ export type SaleCandidate = {
   acquisitionCostCents: number;
   askingPriceCents: number | null;
   platform: MarketplacePlatform | null;
+  sellMultiple: boolean;
 };
 
 export type SaleLedgerItem = {
