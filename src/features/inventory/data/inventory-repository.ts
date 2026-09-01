@@ -27,7 +27,7 @@ export async function listInventory(): Promise<InventoryListItem[]> {
   const { supabase, ownerId } = await getOwnerClient();
   const { data: units, error: unitError } = await supabase
     .from("inventory_units")
-    .select("id, product_id, sku, status, acquisition_cost_cents, acquired_at, storage_location")
+    .select("id, product_id, sku, status, acquisition_cost_cents, acquired_at, storage_location, variant_size")
     .eq("owner_id", ownerId)
     .order("created_at", { ascending: false });
   if (unitError) throw new Error(`Inventory could not be loaded: ${unitError.message}`);
@@ -90,7 +90,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   const { supabase, ownerId } = await getOwnerClient();
   const { data: unit, error: unitError } = await supabase
     .from("inventory_units")
-    .select("id, product_id, sku, status, acquisition_cost_cents, acquired_at, storage_location")
+    .select("id, product_id, sku, status, acquisition_cost_cents, acquired_at, storage_location, variant_size")
     .eq("owner_id", ownerId)
     .eq("id", unitId)
     .maybeSingle();
@@ -101,7 +101,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status, archived_at").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("position"),
-    supabase.from("inventory_units").select("id, status").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
+    supabase.from("inventory_units").select("id, status, variant_size").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
   ]);
   if (productResult.error) throw new Error(`Product could not be loaded: ${productResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listing could not be loaded: ${listingsResult.error.message}`);
@@ -110,6 +110,15 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
 
   const signedPhotos = await signPhotoPaths(supabase, photosResult.data.map((photo) => photo.storage_path));
   const listing = listingsResult.data;
+  const availableSizeBreakdown = [...siblingUnitsResult.data
+    .filter((candidate) => candidate.status !== "sold")
+    .reduce((sizes, candidate) => {
+      const label = candidate.variant_size?.trim() || "N/A";
+      sizes.set(label, (sizes.get(label) ?? 0) + 1);
+      return sizes;
+    }, new Map<string, number>())]
+    .map(([label, count]) => ({ label, count }))
+    .sort((left, right) => left.label === "N/A" ? 1 : right.label === "N/A" ? -1 : left.label.localeCompare(right.label));
   return {
     id: unit.id,
     productId: unit.product_id,
@@ -126,6 +135,8 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     availableCount: siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold").length,
     soldCount: siblingUnitsResult.data.filter((candidate) => candidate.status === "sold").length,
     nextRepeatUnitId: siblingUnitsResult.data.find((candidate) => candidate.status !== "sold")?.id ?? null,
+    unitSize: unit.variant_size,
+    availableSizeBreakdown,
     sku: unit.sku,
     status: unit.status,
     acquisitionCostCents: unit.acquisition_cost_cents,

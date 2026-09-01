@@ -24,9 +24,9 @@ Inventory should feel like browsing a clean storefront, not a spreadsheet. Prior
 ## Product detail
 Show reusable product information, available units, listings, current asking price, unit costs, and historical activity. Existing templates should support extremely fast `Add Stock` actions.
 
-Repeatable products reuse one listing while preserving unit-level history. When `Sell multiple` is enabled, completing a sale consumes the selected unit and automatically creates its replacement with a new SKU, copied unit cost, storage location, and workflow status.
+Repeatable products reuse one listing while preserving unit-level history. When `Sell multiple` is enabled, completing a sale consumes the selected unit and reduces available quantity by one; replenishment is recorded explicitly through the item’s quantity controls. Each added physical unit can carry its own optional size, with `N/A` stored when size is skipped.
 
-Repeatable units are grouped into one inventory card showing available and sold counts. A product-level restock status communicates `In stock`, `Temporarily out`, `Restock soon`, `Restock ASAP`, or `Don't restock`. Out-of-stock and pending-restock products cannot record another sale until returned to In stock; Don't restock allows the current final sale and then ends the reusable listing without rolling another unit forward.
+Repeatable units are grouped into one inventory card showing available and sold counts. A product-level restock status communicates `In stock`, `Temporarily out`, `Restock soon`, `Restock ASAP`, or `Don't restock`. Out-of-stock and pending-restock products cannot record another sale until returned to In stock.
 
 ## History
 Persist meaningful lifecycle events such as creation, confirmation, listing generation, posting, price changes, sales, and later returns/write-offs. Historical records must remain auditable and should not be silently rewritten by later template changes.

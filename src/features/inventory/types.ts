@@ -27,6 +27,8 @@ export type InventoryListItem = {
 
 export type InventoryDetail = InventoryListItem & {
   nextRepeatUnitId: string | null;
+  unitSize: string | null;
+  availableSizeBreakdown: { label: string; count: number }[];
   size: string | null;
   color: string | null;
   description: string | null;

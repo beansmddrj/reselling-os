@@ -16,8 +16,8 @@ export type Database = {
         Relationships: [];
       };
       inventory_units: {
-        Row: { id: string; owner_id: string; product_id: string; sku: string; status: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at: string; storage_location: string | null; source_shipment_id: string | null; created_at: string; updated_at: string };
-        Insert: { id?: string; owner_id: string; product_id: string; sku: string; status?: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at?: string; storage_location?: string | null; source_shipment_id?: string | null; created_at?: string; updated_at?: string };
+        Row: { id: string; owner_id: string; product_id: string; sku: string; status: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at: string; storage_location: string | null; source_shipment_id: string | null; variant_size: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; product_id: string; sku: string; status?: Database["public"]["Enums"]["inventory_status"]; acquisition_cost_cents: number; acquired_at?: string; storage_location?: string | null; source_shipment_id?: string | null; variant_size?: string | null; created_at?: string; updated_at?: string };
         Update: Partial<Database["public"]["Tables"]["inventory_units"]["Insert"]>;
         Relationships: [];
       };
@@ -155,7 +155,7 @@ export type Database = {
         Returns: undefined;
       };
       adjust_repeatable_inventory_quantity: {
-        Args: { target_unit_id: string; quantity_delta: number };
+        Args: { target_unit_id: string; quantity_delta: number; new_unit_size?: string | null };
         Returns: number;
       };
       get_owner_sales_financials: {
