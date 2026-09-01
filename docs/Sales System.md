@@ -30,6 +30,6 @@ The Sales ledger and Home dashboard calculate revenue and realized profit direct
 
 ## Repeatable products
 
-Products such as socks that share one long-lived listing can enable `Sell multiple` from the inventory edit screen. Each recorded sale still consumes its own inventory unit and stores its own COGS snapshot, while the listing remains reusable. Available quantity drops by one and is replenished explicitly from the item page, avoiding duplicate listing setup without inventing stock.
+Products such as socks that share one long-lived listing can enable `Sell multiple` from the inventory edit screen. Each recorded sale still consumes its own inventory unit and stores its own COGS snapshot, while the listing remains reusable. Available quantity drops by one and is replenished explicitly from the item page, avoiding duplicate listing setup without inventing stock. A zero-stock recovery anchor is deliberately non-sellable, so a listing cannot record a sale until a real unit is added back.
 
 Enabling `Sell multiple` on an already-sold item creates an initial available unit and restores the reusable listing to Ready or Active. Each added unit can have an optional size; skipped sizes are recorded as `N/A`.

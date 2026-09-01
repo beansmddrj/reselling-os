@@ -6,40 +6,42 @@
 Build only what is necessary to make that loop reliable through Home, Inventory, Intake, and Sales.
 
 ### Foundation
-- Finalize stack and local development environment
-- Finalize SQL schema/migrations
-- Authentication/session model
-- Photo storage strategy
-- Event history
-- PWA shell and mobile navigation
-- Secure remote-access plan
-- Backups/error logging
+- [x] Next.js, TypeScript, Tailwind, Supabase, and local LAN development environment
+- [x] Versioned SQL schema/migrations and business event history
+- [x] Per-person authentication, shared workspaces, invitations, and owner-only financial privacy
+- [x] Private Supabase Storage for intake photos and Sold Moments
+- [x] Mobile-first shell and navigation
+- [ ] Installable PWA polish
+- [ ] Secure public deployment/remote-access plan (no production host is configured in this repository yet)
+- [ ] Backups and application error logging/alerting
 
 ### Smart Intake
-- 1–5 continuous photo capture/upload
-- Draft recovery
-- Structured AI identification
-- Missing/uncertain field review
-- Product templates/repeat intake
-- Selling Profile-aware Facebook listing generation
-- Preserve AI output and user edits
+- [x] 1–5 continuous camera/photo-library capture, previews, replacement, reorder, and private upload
+- [x] Device and Supabase draft recovery
+- [x] Structured human review and atomic Product → Unit → Listing creation
+- [ ] Structured AI identification
+- [ ] Missing/uncertain AI field review
+- [ ] Product-template repeat intake shortcut
+- [ ] Selling Profile-aware Facebook listing generation
+- [ ] Preserve AI output and user edits
 
 ### Inventory
-- Product/template/unit/listing separation
-- Search/filter
-- DRAFT → READY → ACTIVE → SOLD lifecycle
-- Product details and add-stock flow
+- [x] Product/template/unit/listing separation
+- [x] Search, filters, archive, edit, and guarded deletion
+- [x] DRAFT → READY → ACTIVE → SOLD lifecycle
+- [x] Product details, shared listing groups, restock states, and add/remove stock
+- [x] Repeatable quantity by physical unit with optional per-unit sizes and zero-stock recovery
 
 ### Sales
-- Record transaction and direct costs
-- Deterministic COGS/profit calculations
-- Consume physical inventory
-- Revenue/profit summaries
+- [x] Record transactions and direct costs
+- [x] Deterministic COGS/profit calculations and owner-only finance view
+- [x] Consume physical inventory and protect completed sales
+- [x] Revenue/profit summaries, operating expenses, and optional Sold Moments
 
 ### Home
-- Actionable business snapshot
-- Attention states
-- Recent sales
+- [x] Actionable business snapshot
+- [x] Attention states
+- [x] Recent sales
 
 ## Later — explicitly not v0.1
 - eBay API publishing/order sync

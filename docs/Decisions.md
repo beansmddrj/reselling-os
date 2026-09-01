@@ -43,3 +43,7 @@ Recording a sale leads to an optional one-photo capture screen for real customer
 ## 2026-09-01 — Repeatable listings use physical quantity controls
 
 For a Sell Multiple product, plus and minus adjust actual unsold Inventory Units beneath the same product and listing. Removing quantity never touches a completed sale; adding quantity creates a fresh physical unit using the listing’s current operational defaults. The sales ledger links directly to the one optional Sold Moment archived for each sale.
+
+## 2026-09-01 — Repeatable stock is size-specific and recoverable at zero
+
+Each added repeatable unit has an optional independent size. Existing N/A units can be filled in later, and quantity removal requires choosing the exact size to remove. When the final available unit is removed, the system preserves a non-sellable zero-stock anchor so the operator remains on the listing detail page and can add stock back without reconstructing its listing or product history.

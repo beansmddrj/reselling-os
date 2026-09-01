@@ -9,7 +9,7 @@ Reusable identity: brand, model/name, category, color, common attributes, templa
 Image metadata/storage reference, product association, order, and primary-image state.
 
 ## Inventory Unit
-A physical owned unit: SKU, product, actual acquisition cost, acquired date, condition/size overrides where needed, and lifecycle status.
+A physical owned unit: SKU, product, actual acquisition cost, acquired date, condition/size overrides where needed, and lifecycle status. Repeatable products can add individual units with their own optional `variant_size`; skipped sizes are explicitly stored as `N/A` in the UI. When a repeatable product reaches zero stock, one non-sellable zero-stock anchor preserves its product/listing detail page for recovery and restocking.
 
 ## Listing
 Platform-specific advertisement: platform, title, description, asking price, status, external listing ID/URL when available, timestamps, and preserved AI-original vs user-final content.

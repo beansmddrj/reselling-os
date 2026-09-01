@@ -10,7 +10,7 @@ Only four first-class product areas:
 
 - **Home** — business snapshot and actionable work
 - **Inventory** — source of truth for products, physical units, templates, and listing state
-- **Intake** — 1–5 photos, AI identification, missing-info review, listing generation
+- **Intake** — 1–5 photos, resilient draft recovery, human review, and listing-draft creation (AI identification/listing generation is planned next)
 - **Sales** — record sales and deterministically calculate realized profit
 
 ## Product principles

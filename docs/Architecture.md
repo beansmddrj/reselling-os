@@ -9,6 +9,11 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 - Remote access must use authenticated HTTPS/private networking; do not expose an unauthenticated raw home-server port.
 - Essential business data should have reliable persistence and backups.
 
+## Current runtime status
+- The application and Supabase migrations are version-controlled and verified through a production build before each push.
+- The repository has no configured public host, deployment pipeline, or tracked production URL yet. A local production process also requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` at build/runtime; those values must be configured in the chosen host rather than committed.
+- Until hosting is selected, use the authenticated LAN workflow only. The next deployment decision is a managed HTTPS host or a private authenticated tunnel; never expose port 3000 directly to the public internet.
+
 ## Logical layers
 1. **Client/PWA** — Home, Inventory, Intake, Sales.
 2. **Application API** — validates and coordinates business actions.
