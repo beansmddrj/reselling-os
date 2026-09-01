@@ -24,10 +24,11 @@ export async function recordSaleAction(_previous: RecordSaleState, formData: For
   if (!(["facebook", "ebay", "other"] as MarketplacePlatform[]).includes(platform)) return { status: "error", message: "Choose a valid marketplace." };
   const soldAt = new Date(soldAtValue);
   if (!soldAtValue || Number.isNaN(soldAt.getTime())) return { status: "error", message: "Choose when the item sold." };
+  let saleId = "";
 
   try {
     const supabase = await createClient();
-    const { error } = await supabase.rpc("record_inventory_sale", {
+    const { data, error } = await supabase.rpc("record_inventory_sale", {
       target_unit_id: unitId,
       sale_platform: platform,
       sale_price_cents: parseMoney(formData, "salePrice", "Sale price", true),
@@ -37,7 +38,8 @@ export async function recordSaleAction(_previous: RecordSaleState, formData: For
       other_cost_cents: parseMoney(formData, "otherCost", "Other cost"),
       sale_sold_at: soldAt.toISOString(),
     });
-    if (error) return { status: "error", message: error.message };
+    if (error || !data) return { status: "error", message: error?.message ?? "The sale could not be recorded." };
+    saleId = data;
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "The sale could not be recorded." };
   }
@@ -45,5 +47,5 @@ export async function recordSaleAction(_previous: RecordSaleState, formData: For
   revalidatePath("/sales");
   revalidatePath("/inventory");
   revalidatePath(`/inventory/${unitId}`);
-  redirect("/sales?recorded=1");
+  redirect(`/sales/${saleId}/moment?unitId=${unitId}`);
 }

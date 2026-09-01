@@ -35,3 +35,7 @@ Incoming shipments track the purchase-to-receiving period before inventory exist
 ## 2026-09-01 — Protect shipment capital and projections
 
 Shipment landed cost and projected revenue are owner-only records, stored separately from shared logistics. Inbound capital is not automatically added to operating expenses or realized profit, preventing the same cost from being counted twice when units are eventually sold.
+
+## 2026-09-01 — Optional Sold Moments
+
+Recording a sale leads to an optional one-photo capture screen for real customer, item, or package imagery. It is stored privately in the workspace for later social content and is never posted automatically. Repeatable products already preserve the sold physical unit and roll a fresh available unit under the same product/listing, so Sold Moments add no duplicate inventory records.

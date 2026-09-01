@@ -137,7 +137,7 @@ export function SmartIntake({ sourceShipmentId, defaultCost }: { sourceShipmentI
       hydrated.current = true;
     });
     return () => { active = false; };
-  }, []);
+  }, [defaultCost, sourceShipmentId]);
 
   useEffect(() => {
     if (!form || !hydrated.current || completed) return;
