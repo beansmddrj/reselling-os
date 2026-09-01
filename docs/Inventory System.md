@@ -26,3 +26,9 @@ Show reusable product information, available units, listings, current asking pri
 
 ## History
 Persist meaningful lifecycle events such as creation, confirmation, listing generation, posting, price changes, sales, and later returns/write-offs. Historical records must remain auditable and should not be silently rewritten by later template changes.
+
+## v0.1 implementation
+
+Inventory reads the authenticated owner's physical units from Supabase and composes product identity, latest listing price, and the private lead photo through a repository boundary. The browsing surface supports real status counts, status filtering, and local search across product identity, SKU, and storage location. Each unit links to a read-only detail view with ordered photos, product attributes, cost, asking price, location, and listing draft context.
+
+Workflow-driven status transitions and editing remain later work; the current detail view does not imply that a marketplace post occurred.

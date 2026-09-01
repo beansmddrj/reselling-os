@@ -1,0 +1,3 @@
+export default function InventoryLoading() {
+  return <div className="space-y-6" aria-label="Loading inventory"><div><div className="h-3 w-24 animate-pulse rounded bg-[var(--accent)]/30"/><div className="mt-3 h-10 w-72 max-w-full animate-pulse rounded-xl bg-white/8"/><div className="mt-3 h-4 w-52 animate-pulse rounded bg-white/5"/></div><div className="surface rounded-[2rem] p-4 sm:p-6"><div className="h-11 animate-pulse rounded-2xl bg-white/5"/><div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 3 }, (_, index) => <div key={index} className="aspect-[4/5] animate-pulse rounded-[1.7rem] bg-white/[.035]"/>)}</div></div></div>;
+}
