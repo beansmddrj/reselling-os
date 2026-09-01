@@ -12,6 +12,7 @@ export type InventoryListItem = {
   condition: string | null;
   sku: string;
   status: InventoryStatus;
+  displayStatus: InventoryStatus;
   acquisitionCostCents: number;
   askingPriceCents: number | null;
   storageLocation: string | null;
@@ -29,6 +30,7 @@ export type InventoryDetail = InventoryListItem & {
   nextRepeatUnitId: string | null;
   unitSize: string | null;
   availableSizeBreakdown: { label: string; count: number }[];
+  unsetSizeUnits: { id: string; sku: string }[];
   size: string | null;
   color: string | null;
   description: string | null;

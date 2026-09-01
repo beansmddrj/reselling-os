@@ -36,7 +36,7 @@ export async function listInventory(): Promise<InventoryListItem[]> {
   const productIds = [...new Set(units.map((unit) => unit.product_id))];
   const [productsResult, listingsResult, photosResult] = await Promise.all([
     supabase.from("products").select("id, name, brand, category, condition, is_template, restock_status, archived_at").eq("owner_id", ownerId).in("id", productIds),
-    supabase.from("listings").select("id, product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
+    supabase.from("listings").select("id, product_id, platform, status, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
     supabase.from("product_photos").select("id, product_id, storage_path, position").eq("owner_id", ownerId).in("product_id", productIds).eq("position", 0),
   ]);
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
@@ -62,6 +62,9 @@ export async function listInventory(): Promise<InventoryListItem[]> {
       unit = productUnits.find((candidate) => candidate.status !== "sold") ?? productUnits[0];
     }
     const listing = listings.get(unit.product_id);
+    const cardStatus = product.is_template && !productUnits.some((candidate) => candidate.status !== "sold")
+      ? (listing?.status === "active" ? "active" : "ready")
+      : unit.status;
     return [{
       id: unit.id,
       productId: unit.product_id,
@@ -71,6 +74,7 @@ export async function listInventory(): Promise<InventoryListItem[]> {
       condition: product.condition,
       sku: unit.sku,
       status: unit.status,
+      displayStatus: cardStatus,
       acquisitionCostCents: unit.acquisition_cost_cents,
       askingPriceCents: listing?.asking_price_cents ?? null,
       storageLocation: unit.storage_location,
@@ -101,7 +105,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status, archived_at").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("position"),
-    supabase.from("inventory_units").select("id, status, variant_size").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
+    supabase.from("inventory_units").select("id, sku, status, variant_size").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
   ]);
   if (productResult.error) throw new Error(`Product could not be loaded: ${productResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listing could not be loaded: ${listingsResult.error.message}`);
@@ -137,8 +141,10 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     nextRepeatUnitId: siblingUnitsResult.data.find((candidate) => candidate.status !== "sold")?.id ?? null,
     unitSize: unit.variant_size,
     availableSizeBreakdown,
+    unsetSizeUnits: siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold" && !candidate.variant_size?.trim()).map((candidate) => ({ id: candidate.id, sku: candidate.sku })),
     sku: unit.sku,
     status: unit.status,
+    displayStatus: unit.status,
     acquisitionCostCents: unit.acquisition_cost_cents,
     askingPriceCents: listing?.asking_price_cents ?? null,
     storageLocation: unit.storage_location,

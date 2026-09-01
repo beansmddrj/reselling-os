@@ -29,7 +29,7 @@ type QuickMenu = { item: InventoryListItem; x: number; y: number };
 function matchesFilter(item: InventoryListItem, value: Filter) {
   if (value === "archived") return item.archived;
   if (item.archived) return false;
-  return value === "all" || item.status === value || (value === "sold" && item.sellMultiple && item.soldCount > 0);
+  return value === "all" || item.displayStatus === value || (value === "sold" && item.sellMultiple && item.soldCount > 0);
 }
 
 function InventoryCard({ item, onMenu }: { item: InventoryListItem; onMenu: (menu: QuickMenu) => void }) {
@@ -42,7 +42,7 @@ function InventoryCard({ item, onMenu }: { item: InventoryListItem; onMenu: (men
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.leadPhotoUrl} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
         ) : <div className="grid h-full place-items-center text-4xl text-white/15">▦</div>}
-        <div className="absolute left-3 top-3 flex flex-wrap gap-2">{item.archived && <span className="rounded-full border border-amber-300/25 bg-amber-300/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-amber-200 backdrop-blur-xl">Archived</span>}<span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] backdrop-blur-xl ${statusStyle(item.status)}`}>{item.status}</span>{item.sellMultiple && <span className="rounded-full border border-white/15 bg-black/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] backdrop-blur-xl">{restockLabels[item.restockStatus]}</span>}</div>
+        <div className="absolute left-3 top-3 flex flex-wrap gap-2">{item.archived && <span className="rounded-full border border-amber-300/25 bg-amber-300/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-amber-200 backdrop-blur-xl">Archived</span>}<span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] backdrop-blur-xl ${statusStyle(item.displayStatus)}`}>{item.displayStatus}</span>{item.sellMultiple && <span className="rounded-full border border-white/15 bg-black/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] backdrop-blur-xl">{restockLabels[item.restockStatus]}</span>}</div>
         </div>
         <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="truncate font-semibold tracking-tight">{item.name}</h2><p className="mt-1 truncate text-xs text-[var(--muted)]">{[item.brand, item.category, item.condition].filter(Boolean).join(" · ") || item.sku}</p></div><span className="shrink-0 text-lg text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:text-[var(--accent)]">→</span></div>

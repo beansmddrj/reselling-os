@@ -158,6 +158,10 @@ export type Database = {
         Args: { target_unit_id: string; quantity_delta: number; new_unit_size?: string | null };
         Returns: number;
       };
+      set_repeatable_inventory_unit_size: {
+        Args: { target_unit_id: string; new_unit_size: string };
+        Returns: undefined;
+      };
       get_owner_sales_financials: {
         Args: { target_owner_id: string };
         Returns: { id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string }[];
