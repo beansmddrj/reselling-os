@@ -31,4 +31,6 @@ Persist meaningful lifecycle events such as creation, confirmation, listing gene
 
 Inventory reads the authenticated owner's physical units from Supabase and composes product identity, latest listing price, and the private lead photo through a repository boundary. The browsing surface supports real status counts, status filtering, and local search across product identity, SKU, and storage location. Each unit links to a read-only detail view with ordered photos, product attributes, cost, asking price, location, and listing draft context.
 
-Workflow-driven status transitions and editing remain later work; the current detail view does not imply that a marketplace post occurred.
+Product, unit, and listing-draft fields can be edited from the detail view through one atomic owner-scoped database function, with a business event recorded after success. Inventory cards expose the same non-destructive quick actions through desktop right-click and a visible three-dot control for touch and keyboard access.
+
+Workflow-driven status transitions remain later work; editing does not imply that a marketplace post occurred.

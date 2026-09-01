@@ -58,6 +58,24 @@ export type Database = {
         Args: { draft_id: string };
         Returns: { product_id: string; inventory_unit_id: string; listing_id: string }[];
       };
+      update_inventory_item: {
+        Args: {
+          target_unit_id: string;
+          product_name: string;
+          product_brand: string;
+          product_category: string;
+          product_size: string;
+          product_color: string;
+          product_condition: string;
+          product_description: string;
+          unit_cost_cents: number;
+          unit_storage_location: string;
+          listing_title: string;
+          listing_description: string;
+          listing_asking_price_cents: number;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       inventory_status: "draft" | "ready" | "active" | "sold";
