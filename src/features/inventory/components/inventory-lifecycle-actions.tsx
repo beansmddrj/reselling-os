@@ -1,14 +1,11 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
 import { initialInventoryTransitionState, transitionInventoryItemAction } from "@/features/inventory/actions/transition-inventory-item";
 import type { InventoryStatus } from "@/features/inventory/types";
 
 export function InventoryLifecycleActions({ unitId, status, externalUrl }: { unitId: string; status: InventoryStatus; externalUrl: string | null }) {
   const [state, action, pending] = useActionState(transitionInventoryItemAction, initialInventoryTransitionState);
-  const router = useRouter();
-  useEffect(() => { if (state.status === "success") router.refresh(); }, [router, state.status]);
   if (status === "sold") return null;
 
   return (
