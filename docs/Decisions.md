@@ -20,3 +20,6 @@ Smart Intake is designed for iPhone first. Repeated taps, keyboard/focus problem
 
 ## 2026-09-01 — Shared business workspace
 Authentication remains per-person; passwords and sessions are never shared. Existing owner IDs continue to identify the business record for v0.1, while an explicit membership table grants invited collaborators access to that owner’s inventory, intake drafts, listings, photos, sales, and events. Invitations are matched against the trusted email claim in Supabase Auth and must be accepted by the recipient. The owner can remove a collaborator at any time.
+# Owner-only sale finances
+
+Shared workspace members may see operational sale facts (item, marketplace, date, and sale amount), while COGS, platform/payment fees, shipping, other costs, profit, and aggregate financial reporting are owner-only. PostgreSQL column privileges enforce this boundary; it is not only a UI convention. Team activity similarly exposes safe event fields without raw metadata.

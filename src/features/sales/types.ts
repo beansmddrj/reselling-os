@@ -20,12 +20,12 @@ export type SaleLedgerItem = {
   sku: string;
   platform: MarketplacePlatform;
   salePriceCents: number;
-  cogsCents: number;
-  platformFeeCents: number;
-  paymentFeeCents: number;
-  shippingCostCents: number;
-  otherCostCents: number;
-  profitCents: number;
+  cogsCents: number | null;
+  platformFeeCents: number | null;
+  paymentFeeCents: number | null;
+  shippingCostCents: number | null;
+  otherCostCents: number | null;
+  profitCents: number | null;
   soldAt: string;
 };
 
@@ -37,4 +37,5 @@ export type SalesOverview = {
   averageSaleCents: number;
   activeInventoryCount: number;
   readyInventoryCount: number;
+  isOwner: boolean;
 };

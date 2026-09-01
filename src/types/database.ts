@@ -34,8 +34,8 @@ export type Database = {
         Relationships: [];
       };
       business_events: {
-        Row: { id: string; owner_id: string; event_type: string; entity_type: string | null; entity_id: string | null; metadata: Json; occurred_at: string };
-        Insert: { id?: string; owner_id: string; event_type: string; entity_type?: string | null; entity_id?: string | null; metadata?: Json; occurred_at?: string };
+        Row: { id: string; owner_id: string; event_type: string; entity_type: string | null; entity_id: string | null; actor_id: string | null; metadata: Json; occurred_at: string };
+        Insert: { id?: string; owner_id: string; event_type: string; entity_type?: string | null; entity_id?: string | null; actor_id?: string | null; metadata?: Json; occurred_at?: string };
         Update: Partial<Database["public"]["Tables"]["business_events"]["Insert"]>;
         Relationships: [];
       };
@@ -121,6 +121,10 @@ export type Database = {
       set_inventory_product_archived: {
         Args: { target_unit_id: string; should_archive: boolean };
         Returns: undefined;
+      };
+      get_owner_sales_financials: {
+        Args: { target_owner_id: string };
+        Returns: { id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string }[];
       };
     };
     Enums: {
