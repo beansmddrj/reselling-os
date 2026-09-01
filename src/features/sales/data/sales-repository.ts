@@ -11,7 +11,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
     isOwner
       ? supabase.rpc("get_owner_sales_financials", { target_owner_id: ownerId })
       : supabase.from("sales").select("id, inventory_unit_id, platform, sale_price_cents, sold_at").eq("owner_id", ownerId).order("sold_at", { ascending: false }),
-    supabase.from("inventory_units").select("id, product_id, sku, status, acquisition_cost_cents").eq("owner_id", ownerId).order("created_at", { ascending: false }),
+    supabase.from("inventory_units").select("id, product_id, sku, status, acquisition_cost_cents, is_stock_placeholder").eq("owner_id", ownerId).order("created_at", { ascending: false }),
     isOwner ? supabase.from("business_expenses").select("id, category, amount_cents, description, occurred_on").eq("owner_id", ownerId).order("occurred_on", { ascending: false }) : Promise.resolve({ data: [], error: null }),
   ]);
   if (salesResult.error) throw new Error(`Sales could not be loaded: ${salesResult.error.message}`);
@@ -47,7 +47,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
     return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, salePriceCents: sale.sale_price_cents, ...privateCosts, profitCents, soldAt: sale.sold_at, soldMomentCount: momentCounts.get(sale.id) ?? 0 };
   });
   const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => {
-    if (unit.status === "sold") return false;
+    if (unit.status === "sold" || unit.is_stock_placeholder) return false;
     const product = products.get(unit.product_id);
     if (product?.archived_at) return false;
     return !product?.is_template || !["temporarily_out", "restock_soon", "restock_asap"].includes(product.restock_status);
