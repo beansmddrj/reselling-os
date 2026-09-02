@@ -21,6 +21,7 @@ The essential operational loop is implemented and running on Vercel with Supabas
 - [ ] Switch remaining legacy inventory/sales RPC authorization checks to `business_id`
 - [ ] Tenant isolation, migration rollback, and authorization test suite
 - [ ] Self-service business creation, onboarding, member invites, role management, and account recovery
+- [x] Owner-designated workspace admins with a private release/update log
 - [ ] Support/admin boundary that cannot casually read customer financials
 
 ### Commercial readiness

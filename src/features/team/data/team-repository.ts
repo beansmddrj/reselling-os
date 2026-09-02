@@ -3,8 +3,8 @@ import "server-only";
 import { getBusinessContext } from "@/features/team/data/business-context";
 
 export type TeamPanelData = {
-  role: "owner" | "member";
-  members: { userId: string; displayName: string; role: "owner" | "member" }[];
+  role: "owner" | "admin" | "member";
+  members: { userId: string; displayName: string; role: "owner" | "admin" | "member" }[];
   pendingInvites: { id: string; email: string; createdAt: string }[];
   incomingInvites: { id: string; email: string; ownerName: string }[];
 };

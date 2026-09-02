@@ -178,7 +178,7 @@ export type Database = {
       listing_status: "draft" | "ready" | "active" | "ended" | "sold";
       marketplace_platform: "facebook" | "ebay" | "other";
       intake_step: "photos" | "review";
-      business_role: "owner" | "member";
+      business_role: "owner" | "admin" | "member";
     };
     CompositeTypes: Record<string, never>;
   };

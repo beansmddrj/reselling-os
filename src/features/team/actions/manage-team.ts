@@ -36,6 +36,18 @@ export async function removeTeamMemberAction(userId: string) {
   return { ok: true as const, message: "Team member removed." };
 }
 
+export async function updateTeamMemberRoleAction(memberId: string, nextRole: "member" | "admin") {
+  if (!/^[0-9a-f-]{36}$/i.test(memberId)) return { ok: false as const, message: "This team member is invalid." };
+  const { supabase, userId, businessId, ownerId, role } = await getBusinessContext();
+  if (role !== "owner" || ownerId !== userId) return { ok: false as const, message: "Only the business owner can change admin access." };
+  const { error } = await supabase.from("business_members").update({ role: nextRole }).eq("business_id", businessId).eq("user_id", memberId).neq("user_id", ownerId);
+  if (error) return { ok: false as const, message: error.message };
+  revalidatePath("/");
+  revalidatePath("/settings");
+  revalidatePath("/settings/admin");
+  return { ok: true as const, message: nextRole === "admin" ? "Admin access granted." : "Admin access removed." };
+}
+
 export async function cancelTeamInviteAction(inviteId: string) {
   if (!/^[0-9a-f-]{36}$/i.test(inviteId)) return { ok: false as const, message: "This invitation is invalid." };
   const { supabase, userId, businessId, ownerId, role } = await getBusinessContext();

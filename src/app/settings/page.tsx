@@ -13,5 +13,5 @@ export default async function SettingsPage() {
   ]);
   if (businessResult.error) throw new Error(`Settings could not load: ${businessResult.error.message}`);
   if (profileResult.error) throw new Error(`Settings could not load: ${profileResult.error.message}`);
-  return <SettingsHub businessName={businessResult.data.name} displayName={profileResult.data.display_name ?? "Reseller"} isOwner={role === "owner"} team={<TeamPanel team={team}/>}/>;
+  return <SettingsHub businessName={businessResult.data.name} displayName={profileResult.data.display_name ?? "Reseller"} isOwner={role === "owner"} canManageAdmin={role === "owner" || role === "admin"} team={<TeamPanel team={team}/>}/>;
 }

@@ -59,3 +59,7 @@ Business records, `business_id` links, and Business-linked memberships/invitatio
 ## 2026-09-02 — Business tenant boundary is enforced for direct access
 
 Direct application reads and writes, private Intake and Sold Moment Storage paths, and Row Level Security policies now authorize against `business_id` and verified membership. Owner IDs remain only where they protect the owner's private finances and shipment capital. Existing inventory and sales RPCs are the remaining transition surface; they must receive the same Business authorization and automated cross-business isolation coverage before self-service customer onboarding.
+
+## 2026-09-02 — Workspace admins are operational, not financial
+
+The business owner may promote a teammate to the `admin` workspace role from Settings. Admins may access the private Admin Control Center and operational release history, but they do not gain access to owner-only costs, profit, expenses, or shipment capital. The release log is a curated record of production changes so operators can tell what is actually installed without reading deployment tooling.
