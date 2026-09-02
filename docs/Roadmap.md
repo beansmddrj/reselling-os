@@ -12,7 +12,7 @@ Build only what is necessary to make that loop reliable through Home, Inventory,
 - [x] Private Supabase Storage for intake photos and Sold Moments
 - [x] Mobile-first shell and navigation
 - [ ] Installable PWA polish
-- [ ] Secure public deployment/remote-access plan (no production host is configured in this repository yet)
+- [x] Secure HTTPS deployment on Vercel with Supabase Auth and workspace RLS
 - [ ] Backups and application error logging/alerting
 
 ### Smart Intake

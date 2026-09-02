@@ -11,8 +11,8 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 
 ## Current runtime status
 - The application and Supabase migrations are version-controlled and verified through a production build before each push.
-- The repository has no configured public host, deployment pipeline, or tracked production URL yet. A local production process also requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` at build/runtime; those values must be configured in the chosen host rather than committed.
-- Until hosting is selected, use the authenticated LAN workflow only. The next deployment decision is a managed HTTPS host or a private authenticated tunnel; never expose port 3000 directly to the public internet.
+- Production is hosted on Vercel at [reselling-os.vercel.app](https://reselling-os.vercel.app). The Vercel project provides the required Supabase public environment values at build/runtime; they are not committed to the repository.
+- HTTPS, Supabase Auth, and workspace RLS protect remote access. Never expose the home-PC development port directly to the public internet.
 
 ## Logical layers
 1. **Client/PWA** — Home, Inventory, Intake, Sales.
