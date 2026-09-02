@@ -51,3 +51,7 @@ Each added repeatable unit has an optional independent size. Existing N/A units 
 ## 2026-09-01 — Move from reference workspace to platform readiness
 
 The existing shared workspace is the reference operation, not yet the multi-customer SaaS model. Reselling OS may be offered to other resellers only after a first-class Business tenant replaces owner-ID-as-business across data, Storage, authorization, and support workflows. Billing and public onboarding follow that security migration; they are not shortcuts around it.
+
+## 2026-09-02 — Tenant transition preserves the live reference workspace
+
+Business records, `business_id` links, and Business-linked memberships/invitations are introduced before moving live application reads and writes. Existing owner-scoped behavior remains as a deliberate bridge so inventory, photos, sales, and collaborator access are not disrupted. The bridge is not a paid-launch endpoint: every RLS rule, query, RPC, and Storage path must move to `business_id` and receive explicit isolation tests before onboarding unrelated businesses.

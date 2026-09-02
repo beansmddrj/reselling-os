@@ -16,7 +16,7 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 
 ## Platform transition
 
-The current implementation uses the original owner ID as the business boundary and grants collaborators access to that owner's workspace. That is appropriate for the reference operation, but it is not the final SaaS tenancy model. Before onboarding unrelated customers, introduce a first-class `businesses` tenant, move all operational rows to `business_id`, and scope authorization, Storage paths, events, and financial data to that tenant. Migration, rollback, and isolation tests are release blockers for the platform launch.
+The current implementation began the transition to a first-class `businesses` tenant. Every legacy workspace has a Business record, membership and invitations carry `business_id`, and every operational table now stores a backfilled `business_id`. Legacy owner-scoped reads and RLS remain temporarily during the controlled bridge so the live reference workspace stays intact. Before onboarding unrelated customers, move every application query, RPC, Storage path, event, and authorization check to `business_id`, then prove it with isolation and rollback tests. Those tests are release blockers for the platform launch.
 
 The hosted application should keep Vercel for the web runtime and Supabase for Auth, Postgres, and Storage. Add production error monitoring, audit logs, backups/restore drills, rate limits, and a support/admin boundary before accepting payment.
 

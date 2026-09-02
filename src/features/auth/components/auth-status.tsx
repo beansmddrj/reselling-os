@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -25,6 +26,7 @@ export function AuthStatus() {
 
   return (
     <div className="flex items-center gap-2">
+      <Link href="/settings" aria-label="Open settings" className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-sm text-[var(--muted)] transition hover:text-white lg:hidden">⚙</Link>
       <div title={email || "Signed in"} className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold">{email ? email[0].toUpperCase() : "S"}</div>
       <button type="button" onClick={() => void signOut()} disabled={signingOut} className="hidden min-h-10 rounded-xl border border-white/10 px-3 text-xs font-semibold text-[var(--muted)] transition hover:text-white disabled:opacity-50 sm:block">{signingOut ? "Signing out…" : "Sign out"}</button>
     </div>

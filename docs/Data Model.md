@@ -2,8 +2,8 @@
 
 This is the conceptual reference-workspace model. The platform migration adds a first-class Business tenant above every operational record.
 
-## Business (platform phase)
-An independent customer organization. Every product, unit, listing, sale, photo, shipment, expense, and event belongs to exactly one Business. Membership roles are granted within a Business; no customer can discover or access another Business's records.
+## Business (platform foundation implemented)
+An independent customer organization. Every product, unit, listing, sale, photo, shipment, expense, and event now carries a `business_id`; legacy owner references remain only while the application is migrated safely. Membership roles and invitations are granted within a Business. The launch requirement is that no customer can discover or access another Business's records through a query, RPC, or Storage path.
 
 ## Product
 Reusable identity: brand, model/name, category, color, common attributes, template/default information.

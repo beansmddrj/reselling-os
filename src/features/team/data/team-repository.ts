@@ -10,10 +10,10 @@ export type TeamPanelData = {
 };
 
 export async function getTeamPanelData(): Promise<TeamPanelData> {
-  const { supabase, userId, ownerId, role } = await getBusinessContext();
+  const { supabase, userId, businessId, role } = await getBusinessContext();
   const [membersResult, outgoingResult, incomingResult] = await Promise.all([
-    supabase.from("business_members").select("business_owner_id, user_id, role").eq("business_owner_id", ownerId),
-    role === "owner" ? supabase.from("business_invites").select("id, email, created_at").eq("business_owner_id", ownerId).is("accepted_at", null).order("created_at") : Promise.resolve({ data: [], error: null }),
+    supabase.from("business_members").select("business_owner_id, user_id, role").eq("business_id", businessId),
+    role === "owner" ? supabase.from("business_invites").select("id, email, created_at").eq("business_id", businessId).is("accepted_at", null).order("created_at") : Promise.resolve({ data: [], error: null }),
     supabase.from("business_invites").select("id, email, business_owner_id").is("accepted_at", null).neq("business_owner_id", userId),
   ]);
   if (membersResult.error) throw new Error(`Team members could not be loaded: ${membersResult.error.message}`);

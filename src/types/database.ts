@@ -9,6 +9,12 @@ export type Database = {
         Update: { display_name?: string | null; updated_at?: string };
         Relationships: [];
       };
+      businesses: {
+        Row: { id: string; owner_id: string; name: string; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; name: string; created_at?: string; updated_at?: string };
+        Update: { name?: string; updated_at?: string };
+        Relationships: [];
+      };
       products: {
         Row: { id: string; owner_id: string; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; is_template: boolean; restock_status: string; archived_at: string | null; default_asking_price_cents: number | null; default_cost_cents: number | null; created_at: string; updated_at: string };
         Insert: { id?: string; owner_id: string; name: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; is_template?: boolean; restock_status?: string; archived_at?: string | null; default_asking_price_cents?: number | null; default_cost_cents?: number | null; created_at?: string; updated_at?: string };
@@ -64,14 +70,14 @@ export type Database = {
         Relationships: [];
       };
       business_members: {
-        Row: { business_owner_id: string; user_id: string; role: Database["public"]["Enums"]["business_role"]; joined_at: string };
-        Insert: { business_owner_id: string; user_id: string; role: Database["public"]["Enums"]["business_role"]; joined_at?: string };
+        Row: { business_id: string; business_owner_id: string; user_id: string; role: Database["public"]["Enums"]["business_role"]; joined_at: string };
+        Insert: { business_id: string; business_owner_id: string; user_id: string; role: Database["public"]["Enums"]["business_role"]; joined_at?: string };
         Update: Partial<Database["public"]["Tables"]["business_members"]["Insert"]>;
         Relationships: [];
       };
       business_invites: {
-        Row: { id: string; business_owner_id: string; email: string; invited_by: string; accepted_at: string | null; created_at: string };
-        Insert: { id?: string; business_owner_id: string; email: string; invited_by: string; accepted_at?: string | null; created_at?: string };
+        Row: { id: string; business_id: string; business_owner_id: string; email: string; invited_by: string; accepted_at: string | null; created_at: string };
+        Insert: { id?: string; business_id: string; business_owner_id: string; email: string; invited_by: string; accepted_at?: string | null; created_at?: string };
         Update: Partial<Database["public"]["Tables"]["business_invites"]["Insert"]>;
         Relationships: [];
       };
