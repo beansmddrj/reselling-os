@@ -8,8 +8,8 @@ const PHOTO_BUCKET = "intake-photos";
 const PHOTO_URL_LIFETIME_SECONDS = 60 * 60;
 
 async function getOwnerClient() {
-  const { supabase, ownerId } = await getBusinessContext();
-  return { supabase, ownerId };
+  const { supabase, businessId } = await getBusinessContext();
+  return { supabase, businessId };
 }
 
 async function signPhotoPaths(
@@ -24,20 +24,20 @@ async function signPhotoPaths(
 }
 
 export async function listInventory(): Promise<InventoryListItem[]> {
-  const { supabase, ownerId } = await getOwnerClient();
+  const { supabase, businessId } = await getOwnerClient();
   const { data: units, error: unitError } = await supabase
     .from("inventory_units")
     .select("id, product_id, sku, status, acquisition_cost_cents, acquired_at, storage_location, variant_size, is_stock_placeholder")
-    .eq("owner_id", ownerId)
+    .eq("business_id", businessId)
     .order("created_at", { ascending: false });
   if (unitError) throw new Error(`Inventory could not be loaded: ${unitError.message}`);
   if (!units.length) return [];
 
   const productIds = [...new Set(units.map((unit) => unit.product_id))];
   const [productsResult, listingsResult, photosResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, condition, is_template, restock_status, archived_at").eq("owner_id", ownerId).in("id", productIds),
-    supabase.from("listings").select("id, product_id, platform, status, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
-    supabase.from("product_photos").select("id, product_id, storage_path, position").eq("owner_id", ownerId).in("product_id", productIds).eq("position", 0),
+    supabase.from("products").select("id, name, brand, category, condition, is_template, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
+    supabase.from("listings").select("id, product_id, platform, status, asking_price_cents, created_at").eq("business_id", businessId).in("product_id", productIds).order("created_at", { ascending: false }),
+    supabase.from("product_photos").select("id, product_id, storage_path, position").eq("business_id", businessId).in("product_id", productIds).eq("position", 0),
   ]);
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listings could not be loaded: ${listingsResult.error.message}`);
@@ -91,21 +91,21 @@ export async function listInventory(): Promise<InventoryListItem[]> {
 }
 
 export async function getInventoryDetail(unitId: string): Promise<InventoryDetail | null> {
-  const { supabase, ownerId } = await getOwnerClient();
+  const { supabase, businessId } = await getOwnerClient();
   const { data: unit, error: unitError } = await supabase
     .from("inventory_units")
     .select("id, product_id, sku, status, acquisition_cost_cents, acquired_at, storage_location, variant_size, is_stock_placeholder")
-    .eq("owner_id", ownerId)
+    .eq("business_id", businessId)
     .eq("id", unitId)
     .maybeSingle();
   if (unitError) throw new Error(`Inventory item could not be loaded: ${unitError.message}`);
   if (!unit) return null;
 
   const [productResult, listingsResult, photosResult, siblingUnitsResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status, archived_at").eq("owner_id", ownerId).eq("id", unit.product_id).single(),
-    supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-    supabase.from("product_photos").select("id, storage_path, position").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("position"),
-    supabase.from("inventory_units").select("id, sku, status, variant_size, is_stock_placeholder").eq("owner_id", ownerId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
+    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status, archived_at").eq("business_id", businessId).eq("id", unit.product_id).single(),
+    supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("business_id", businessId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("product_photos").select("id, storage_path, position").eq("business_id", businessId).eq("product_id", unit.product_id).order("position"),
+    supabase.from("inventory_units").select("id, sku, status, variant_size, is_stock_placeholder").eq("business_id", businessId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
   ]);
   if (productResult.error) throw new Error(`Product could not be loaded: ${productResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listing could not be loaded: ${listingsResult.error.message}`);

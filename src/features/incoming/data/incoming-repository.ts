@@ -10,8 +10,8 @@ export type IncomingShipment = {
 };
 
 export async function listIncomingShipments() {
-  const { supabase, ownerId, role } = await getBusinessContext();
-  const { data, error } = await supabase.from("inbound_shipments").select("id, name, supplier_name, supplier_order_reference, status, visibility, expected_pieces, received_pieces, ordered_on, expected_delivery_on, contents, notes").eq("owner_id", ownerId).order("created_at", { ascending: false });
+  const { supabase, businessId, role } = await getBusinessContext();
+  const { data, error } = await supabase.from("inbound_shipments").select("id, name, supplier_name, supplier_order_reference, status, visibility, expected_pieces, received_pieces, ordered_on, expected_delivery_on, contents, notes").eq("business_id", businessId).order("created_at", { ascending: false });
   if (error) throw new Error(`Incoming shipments could not be loaded: ${error.message}`);
   let financials = new Map<string, { landedCents: number; projectedRevenueCents: number | null }>();
   if (role === "owner" && data.length) {
@@ -26,10 +26,10 @@ export async function getIncomingShipment(id: string) {
   const overview = await listIncomingShipments();
   const shipment = overview.shipments.find((item) => item.id === id);
   if (!shipment) return null;
-  const { supabase, ownerId } = await getBusinessContext();
+  const { supabase, businessId } = await getBusinessContext();
   const [packages, receipts] = await Promise.all([
-    supabase.from("inbound_packages").select("id, carrier, tracking_number, tracking_url, status, expected_pieces, received_pieces, estimated_delivery_on, last_known_location").eq("shipment_id", id).eq("owner_id", ownerId).order("created_at"),
-    supabase.from("inbound_receipts").select("id, package_id, received_pieces, exception_type, notes, received_at").eq("shipment_id", id).eq("owner_id", ownerId).order("received_at", { ascending: false }),
+    supabase.from("inbound_packages").select("id, carrier, tracking_number, tracking_url, status, expected_pieces, received_pieces, estimated_delivery_on, last_known_location").eq("shipment_id", id).eq("business_id", businessId).order("created_at"),
+    supabase.from("inbound_receipts").select("id, package_id, received_pieces, exception_type, notes, received_at").eq("shipment_id", id).eq("business_id", businessId).order("received_at", { ascending: false }),
   ]);
   if (packages.error) throw new Error(`Packages could not be loaded: ${packages.error.message}`);
   if (receipts.error) throw new Error(`Receiving history could not be loaded: ${receipts.error.message}`);

@@ -14,8 +14,8 @@ const labels: Record<string, string> = {
 };
 
 export async function getActivityFeed(limit = 12): Promise<ActivityItem[]> {
-  const { supabase, ownerId } = await getBusinessContext();
-  const { data: events, error } = await supabase.from("business_events").select("id, event_type, actor_id, occurred_at").eq("owner_id", ownerId).order("occurred_at", { ascending: false }).limit(limit);
+  const { supabase, businessId } = await getBusinessContext();
+  const { data: events, error } = await supabase.from("business_events").select("id, event_type, actor_id, occurred_at").eq("business_id", businessId).order("occurred_at", { ascending: false }).limit(limit);
   if (error) throw new Error(`Activity could not be loaded: ${error.message}`);
   const actorIds = [...new Set(events.flatMap((event) => event.actor_id ? [event.actor_id] : []))];
   const profiles = actorIds.length ? await supabase.from("profiles").select("id, display_name").in("id", actorIds) : { data: [], error: null };

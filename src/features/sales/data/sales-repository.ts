@@ -5,14 +5,14 @@ import { calculateProfitCents } from "@/features/sales/money";
 import type { BusinessExpense, SaleCandidate, SaleLedgerItem, SalesOverview } from "@/features/sales/types";
 
 export async function getSalesOverview(): Promise<SalesOverview> {
-  const { supabase, ownerId, role } = await getBusinessContext();
+  const { supabase, businessId, ownerId, role } = await getBusinessContext();
   const isOwner = role === "owner";
   const [salesResult, unitsResult, expensesResult] = await Promise.all([
     isOwner
       ? supabase.rpc("get_owner_sales_financials", { target_owner_id: ownerId })
-      : supabase.from("sales").select("id, inventory_unit_id, platform, sale_price_cents, sold_at").eq("owner_id", ownerId).order("sold_at", { ascending: false }),
-    supabase.from("inventory_units").select("id, product_id, sku, status, acquisition_cost_cents, is_stock_placeholder").eq("owner_id", ownerId).order("created_at", { ascending: false }),
-    isOwner ? supabase.from("business_expenses").select("id, category, amount_cents, description, occurred_on").eq("owner_id", ownerId).order("occurred_on", { ascending: false }) : Promise.resolve({ data: [], error: null }),
+      : supabase.from("sales").select("id, inventory_unit_id, platform, sale_price_cents, sold_at").eq("business_id", businessId).order("sold_at", { ascending: false }),
+    supabase.from("inventory_units").select("id, product_id, sku, status, acquisition_cost_cents, is_stock_placeholder").eq("business_id", businessId).order("created_at", { ascending: false }),
+    isOwner ? supabase.from("business_expenses").select("id, category, amount_cents, description, occurred_on").eq("business_id", businessId).order("occurred_on", { ascending: false }) : Promise.resolve({ data: [], error: null }),
   ]);
   if (salesResult.error) throw new Error(`Sales could not be loaded: ${salesResult.error.message}`);
   if (unitsResult.error) throw new Error(`Inventory could not be loaded: ${unitsResult.error.message}`);
@@ -21,9 +21,9 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   const productIds = [...new Set(unitsResult.data.map((unit) => unit.product_id))];
   const saleIds = salesResult.data.map((sale) => sale.id);
   const [productsResult, listingsResult, momentsResult] = productIds.length ? await Promise.all([
-    supabase.from("products").select("id, name, is_template, restock_status, archived_at").eq("owner_id", ownerId).in("id", productIds),
-    supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("owner_id", ownerId).in("product_id", productIds).order("created_at", { ascending: false }),
-    saleIds.length ? supabase.from("sale_moments").select("sale_id").eq("owner_id", ownerId).in("sale_id", saleIds) : Promise.resolve({ data: [], error: null }),
+    supabase.from("products").select("id, name, is_template, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
+    supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("business_id", businessId).in("product_id", productIds).order("created_at", { ascending: false }),
+    saleIds.length ? supabase.from("sale_moments").select("sale_id").eq("business_id", businessId).in("sale_id", saleIds) : Promise.resolve({ data: [], error: null }),
   ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listings could not be loaded: ${listingsResult.error.message}`);

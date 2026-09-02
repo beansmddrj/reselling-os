@@ -55,3 +55,7 @@ The existing shared workspace is the reference operation, not yet the multi-cust
 ## 2026-09-02 — Tenant transition preserves the live reference workspace
 
 Business records, `business_id` links, and Business-linked memberships/invitations are introduced before moving live application reads and writes. Existing owner-scoped behavior remains as a deliberate bridge so inventory, photos, sales, and collaborator access are not disrupted. The bridge is not a paid-launch endpoint: every RLS rule, query, RPC, and Storage path must move to `business_id` and receive explicit isolation tests before onboarding unrelated businesses.
+
+## 2026-09-02 — Business tenant boundary is enforced for direct access
+
+Direct application reads and writes, private Intake and Sold Moment Storage paths, and Row Level Security policies now authorize against `business_id` and verified membership. Owner IDs remain only where they protect the owner's private finances and shipment capital. Existing inventory and sales RPCs are the remaining transition surface; they must receive the same Business authorization and automated cross-business isolation coverage before self-service customer onboarding.

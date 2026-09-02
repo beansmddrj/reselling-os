@@ -17,7 +17,8 @@ The essential operational loop is implemented and running on Vercel with Supabas
 ### Tenant and security foundation
 
 - [x] First-class `businesses` tenant, backfilled business records, and Business-linked memberships/invitations
-- [ ] Switch every operational query, RPC, Storage path, event, and RLS rule from the legacy owner boundary to `business_id`
+- [x] Switch direct operational reads/writes, photo Storage paths, and database RLS policies to `business_id`
+- [ ] Switch remaining legacy inventory/sales RPC authorization checks to `business_id`
 - [ ] Tenant isolation, migration rollback, and authorization test suite
 - [ ] Self-service business creation, onboarding, member invites, role management, and account recovery
 - [ ] Support/admin boundary that cannot casually read customer financials

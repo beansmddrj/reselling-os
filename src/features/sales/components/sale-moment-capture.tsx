@@ -38,13 +38,13 @@ export function SaleMomentCapture({ saleId, productName, repeatable, existingMom
     const supabase = createClient();
     const { data: auth, error: authError } = await supabase.auth.getUser();
     if (authError || !auth.user) { setSaving(false); setError("Sign in again before saving this photo."); return; }
-    const membership = await supabase.from("business_members").select("business_owner_id, role, joined_at").eq("user_id", auth.user.id).order("joined_at");
+    const membership = await supabase.from("business_members").select("business_id, business_owner_id, role, joined_at").eq("user_id", auth.user.id).order("joined_at");
     const selected = membership.data?.find((item) => item.role === "member") ?? membership.data?.[0];
     if (membership.error || !selected) { setSaving(false); setError("Your workspace could not be loaded."); return; }
-    const path = `${selected.business_owner_id}/${saleId}/${fileName(file)}`;
+    const path = `${selected.business_id}/${saleId}/${fileName(file)}`;
     const upload = await supabase.storage.from("sale-moments").upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
     if (upload.error) { setSaving(false); setError(`Could not upload photo: ${upload.error.message}`); return; }
-    const saveResult = await supabase.from("sale_moments").insert({ owner_id: selected.business_owner_id, sale_id: saleId, storage_path: path, moment_type: momentType });
+    const saveResult = await supabase.from("sale_moments").insert({ owner_id: selected.business_owner_id, business_id: selected.business_id, sale_id: saleId, storage_path: path, moment_type: momentType });
     if (saveResult.error) { await supabase.storage.from("sale-moments").remove([path]); setSaving(false); setError(`Could not save photo: ${saveResult.error.message}`); return; }
     router.replace("/sales?recorded=1&moment=1"); router.refresh();
   }

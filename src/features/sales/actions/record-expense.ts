@@ -8,7 +8,7 @@ export type RecordExpenseState = { status: "idle" | "error"; message: string };
 const categories = ["supplies", "travel", "subscription", "shipping", "taxes", "personal_draw", "historical_adjustment", "other"] as const;
 
 export async function recordExpenseAction(_previous: RecordExpenseState, formData: FormData): Promise<RecordExpenseState> {
-  const { supabase, ownerId, role } = await getBusinessContext();
+  const { supabase, ownerId, businessId, role } = await getBusinessContext();
   if (role !== "owner") return { status: "error", message: "Only the business owner can record private expenses." };
   const category = String(formData.get("category") ?? "");
   const description = String(formData.get("description") ?? "").trim();
@@ -20,7 +20,7 @@ export async function recordExpenseAction(_previous: RecordExpenseState, formDat
   if (!/^\d{4}-\d{2}-\d{2}$/.test(occurredOn) || Number.isNaN(new Date(`${occurredOn}T12:00:00`).getTime())) return { status: "error", message: "Choose a valid expense date." };
   const amountCents = Math.round(Number(amount) * 100);
   if (!Number.isSafeInteger(amountCents)) return { status: "error", message: "That amount is too large." };
-  const { error } = await supabase.from("business_expenses").insert({ owner_id: ownerId, category, amount_cents: amountCents, description, occurred_on: occurredOn });
+  const { error } = await supabase.from("business_expenses").insert({ owner_id: ownerId, business_id: businessId, category, amount_cents: amountCents, description, occurred_on: occurredOn });
   if (error) return { status: "error", message: error.message };
   revalidatePath("/");
   revalidatePath("/sales");
