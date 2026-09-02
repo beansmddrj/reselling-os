@@ -16,7 +16,7 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 
 ## Platform transition
 
-The current implementation uses a first-class `businesses` tenant. Every legacy workspace has a Business record, memberships and invitations carry `business_id`, and every operational table stores a backfilled `business_id`. Direct application queries, writes, photo Storage paths, and RLS policies enforce that Business boundary. Legacy inventory and sales RPC authorization checks remain as the final controlled bridge; they must move to `business_id` and receive isolation and rollback tests before onboarding unrelated customers. Those tests are release blockers for the platform launch.
+The current implementation uses a first-class `businesses` tenant. Every legacy workspace has a Business record, memberships and invitations carry `business_id`, and every operational table stores a backfilled `business_id`. Direct application queries, writes, photo Storage paths, and RLS policies enforce that Business boundary. Inventory and sales RPCs explicitly run as the caller, so the same Business RLS policies apply within each action rather than being bypassed by function privileges. Some legacy owner predicates remain as a secondary guard during the transition; the product must not introduce multi-workspace switching until those paths are fully business-native and covered by broader authorization tests.
 
 The hosted application should keep Vercel for the web runtime and Supabase for Auth, Postgres, and Storage. Add production error monitoring, audit logs, backups/restore drills, rate limits, and a support/admin boundary before accepting payment.
 
@@ -32,6 +32,7 @@ The hosted application should keep Vercel for the web runtime and Supabase for A
 - Secrets only through environment configuration; never commit credentials.
 - Supabase Auth sessions use secure cookie handling through `@supabase/ssr`; the Next.js proxy refreshes claims and protects application routes.
 - Public database tables remain protected by workspace-membership RLS even when the authenticated Data API role has explicit table grants. Each account has its own login; an owner can invite one collaborator into the same business workspace by verified account email. Membership checks live in a non-exposed private database helper, and audit events preserve the acting user separately from the business owner.
+- Cross-Business database isolation has a checked-in pgTAP test. Running it requires Docker Desktop and is a beta-release gate; coverage must expand across every operational table, Storage, and privileged action before public onboarding.
 - Database migrations are version controlled.
 - `main` remains working.
 - Core financial/state rules are tested.

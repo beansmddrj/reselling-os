@@ -18,8 +18,9 @@ The essential operational loop is implemented and running on Vercel with Supabas
 
 - [x] First-class `businesses` tenant, backfilled business records, and Business-linked memberships/invitations
 - [x] Switch direct operational reads/writes, photo Storage paths, and database RLS policies to `business_id`
-- [ ] Switch remaining legacy inventory/sales RPC authorization checks to `business_id`
-- [ ] Tenant isolation, migration rollback, and authorization test suite
+- [x] Ensure inventory/sales RPCs execute as the signed-in caller, enforcing the Business RLS boundary for action reads and writes
+- [ ] Remove legacy owner predicates as multi-workspace flows become fully business-native
+- [ ] Tenant isolation, migration rollback, and authorization test suite (initial cross-Business pgTAP coverage is checked in; requires Docker Desktop to run and must expand across every operational table, Storage, and privileged action before beta)
 - [ ] Self-service business creation, onboarding, member invites, role management, and account recovery
 - [x] Owner-designated workspace admins with a private release/update log
 - [ ] Support/admin boundary that cannot casually read customer financials

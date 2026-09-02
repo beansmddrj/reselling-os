@@ -58,7 +58,7 @@ Business records, `business_id` links, and Business-linked memberships/invitatio
 
 ## 2026-09-02 — Business tenant boundary is enforced for direct access
 
-Direct application reads and writes, private Intake and Sold Moment Storage paths, and Row Level Security policies now authorize against `business_id` and verified membership. Owner IDs remain only where they protect the owner's private finances and shipment capital. Existing inventory and sales RPCs are the remaining transition surface; they must receive the same Business authorization and automated cross-business isolation coverage before self-service customer onboarding.
+Direct application reads and writes, private Intake and Sold Moment Storage paths, and Row Level Security policies now authorize against `business_id` and verified membership. Owner IDs remain only where they protect the owner's private finances and shipment capital. Inventory and sales RPCs explicitly execute as the signed-in caller, so they are subject to that same Business RLS boundary. Legacy owner predicates remain a secondary compatibility guard and will be removed only alongside fully business-native multi-workspace flows. Automated cross-Business isolation coverage is a public-onboarding release gate.
 
 ## 2026-09-02 — Workspace admins are operational, not financial
 
