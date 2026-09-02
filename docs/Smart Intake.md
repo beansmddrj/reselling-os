@@ -47,3 +47,7 @@ The first implementation deliberately stops before AI identification. New-produc
 - atomic finalization into a Product, draft Inventory Unit, ordered Product Photos, and draft Facebook Listing
 
 Finalization never posts to a marketplace. AI identification and listing generation remain later, explicit stages built on top of this draft boundary.
+
+## Platform requirement
+
+Drafts, private photo paths, and finalization must be scoped to the active Business tenant. A user belonging to more than one business must never restore or upload a draft into the wrong workspace.

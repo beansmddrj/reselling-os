@@ -1,54 +1,54 @@
 # Roadmap
 
-## v0.1 — Essential Loop
-**SOURCE → PHOTO → IDENTIFY → REVIEW → LISTING → POST → ACTIVE → SOLD → PROFIT**
+## Current position — reference operation is live
 
-Build only what is necessary to make that loop reliable through Home, Inventory, Intake, and Sales.
+The essential operational loop is implemented and running on Vercel with Supabase:
 
-### Foundation
-- [x] Next.js, TypeScript, Tailwind, Supabase, and local LAN development environment
-- [x] Versioned SQL schema/migrations and business event history
-- [x] Per-person authentication, shared workspaces, invitations, and owner-only financial privacy
-- [x] Private Supabase Storage for intake photos and Sold Moments
-- [x] Mobile-first shell and navigation
-- [ ] Installable PWA polish
-- [x] Secure HTTPS deployment on Vercel with Supabase Auth and workspace RLS
-- [ ] Backups and application error logging/alerting
+- [x] Mobile-first Intake with private photos and draft recovery
+- [x] Product → Inventory Unit → Listing → Sale lifecycle
+- [x] Repeatable listings with per-unit quantities, sizes, and zero-stock recovery
+- [x] Sales, deterministic profit, owner-only finances, expenses, and Sold Moments
+- [x] Shared operator workspace with invitations and row-level authorization
+- [x] Inbound shipment, package, receipt, and owner-only capital tracking
+- [x] HTTPS production deployment at `reselling-os.vercel.app`
 
-### Smart Intake
-- [x] 1–5 continuous camera/photo-library capture, previews, replacement, reorder, and private upload
-- [x] Device and Supabase draft recovery
-- [x] Structured human review and atomic Product → Unit → Listing creation
-- [ ] Structured AI identification
-- [ ] Missing/uncertain AI field review
-- [ ] Product-template repeat intake shortcut
-- [ ] Selling Profile-aware Facebook listing generation
-- [ ] Preserve AI output and user edits
+## Platform readiness — required before selling access
 
-### Inventory
-- [x] Product/template/unit/listing separation
-- [x] Search, filters, archive, edit, and guarded deletion
-- [x] DRAFT → READY → ACTIVE → SOLD lifecycle
-- [x] Product details, shared listing groups, restock states, and add/remove stock
-- [x] Repeatable quantity by physical unit with optional per-unit sizes and zero-stock recovery
+### Tenant and security foundation
 
-### Sales
-- [x] Record transactions and direct costs
-- [x] Deterministic COGS/profit calculations and owner-only finance view
-- [x] Consume physical inventory and protect completed sales
-- [x] Revenue/profit summaries, operating expenses, and optional Sold Moments
+- [ ] First-class `businesses` tenant rather than owner-ID-as-business
+- [ ] Migrate every operational record, Storage path, event, and query to `business_id`
+- [ ] Tenant isolation, migration rollback, and authorization test suite
+- [ ] Self-service business creation, onboarding, member invites, role management, and account recovery
+- [ ] Support/admin boundary that cannot casually read customer financials
 
-### Home
-- [x] Actionable business snapshot
-- [x] Attention states
-- [x] Recent sales
+### Commercial readiness
 
-## Later — explicitly not v0.1
-- eBay API publishing/order sync
+- [ ] Subscription/billing model and entitlements
+- [ ] Trial, cancellation, and failed-payment behavior
+- [ ] Terms, privacy policy, data-retention/deletion flow, and support contact
+- [ ] Product analytics that exclude sensitive item/financial content by default
+
+### Reliability and launch operations
+
+- [ ] Error monitoring and alerting
+- [ ] Automated backups plus a restore drill
+- [ ] Rate limits and upload-abuse controls
+- [ ] Production smoke tests for sign-in, Intake, Inventory, Sales, and team access
+- [ ] Closed beta with a small set of real resellers before paid launch
+
+## Product improvements after the platform core
+
+- [ ] Structured AI item identification with confidence and human review
+- [ ] Selling Profile-aware listing generation that preserves original AI output and user edits
+- [ ] Installable PWA polish and offline/interrupted-work handling
+- [ ] Repeat intake/template workflow for known products
+- [ ] eBay API publishing/order sync, only through supported APIs
+
+## Explicitly deferred
+
 - Opportunity Radar / external market intelligence
-- Procurement recommendations
-- Purchasing automation
-- Supplier integrations
-- Autonomous messaging
+- Automated purchasing or supplier ordering
+- Autonomous Facebook posting or buyer messaging
 - CHIEF/Slims Suite integration
-- Advanced strategy-learning recommendations
+- Advanced tax/bookkeeping automation

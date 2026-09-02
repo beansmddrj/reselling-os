@@ -1,6 +1,9 @@
 # Data Model
 
-This is the conceptual v0.1 model; exact SQL schema is finalized before implementation.
+This is the conceptual reference-workspace model. The platform migration adds a first-class Business tenant above every operational record.
+
+## Business (platform phase)
+An independent customer organization. Every product, unit, listing, sale, photo, shipment, expense, and event belongs to exactly one Business. Membership roles are granted within a Business; no customer can discover or access another Business's records.
 
 ## Product
 Reusable identity: brand, model/name, category, color, common attributes, template/default information.

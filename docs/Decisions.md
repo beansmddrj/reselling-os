@@ -47,3 +47,7 @@ For a Sell Multiple product, plus and minus adjust actual unsold Inventory Units
 ## 2026-09-01 — Repeatable stock is size-specific and recoverable at zero
 
 Each added repeatable unit has an optional independent size. Existing N/A units can be filled in later, and quantity removal requires choosing the exact size to remove. When the final available unit is removed, the system preserves a non-sellable zero-stock anchor so the operator remains on the listing detail page and can add stock back without reconstructing its listing or product history.
+
+## 2026-09-01 — Move from reference workspace to platform readiness
+
+The existing shared workspace is the reference operation, not yet the multi-customer SaaS model. Reselling OS may be offered to other resellers only after a first-class Business tenant replaces owner-ID-as-business across data, Storage, authorization, and support workflows. Billing and public onboarding follow that security migration; they are not shortcuts around it.

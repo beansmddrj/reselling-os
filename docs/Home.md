@@ -16,3 +16,7 @@ Answer two questions immediately:
 - Basic attention items such as incomplete drafts or missing cost data
 
 Avoid vanity analytics and dashboard overload. Every prominent element should help the owner understand performance or take action.
+
+## Platform requirement
+
+The Home view is always scoped to the currently selected Business. It must never aggregate inventory, sales, or owner-only financials across customer businesses. Platform-level operational metrics belong in a separate support/admin surface, not in a reseller's Home view.

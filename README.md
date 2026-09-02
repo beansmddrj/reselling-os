@@ -4,7 +4,7 @@ Mobile-first reselling operations system built around one reliable workflow:
 
 **SOURCE → PHOTO → IDENTIFY → REVIEW → LISTING → POST → ACTIVE → SOLD → PROFIT**
 
-## v0.1 scope
+## Current product stage
 
 Only four first-class product areas:
 
@@ -23,7 +23,13 @@ Only four first-class product areas:
 6. Preserve AI output, user edits, price changes, and outcomes so the system can learn what actually sells.
 7. `main` should remain working. Build meaningful changes on branches and merge after verification.
 
-## Explicitly out of scope for v0.1
+## Next product stage
+
+The v0.1 operating core is proven in a real shared workspace. The next phase is turning that workflow into a secure platform that multiple independent reselling businesses can subscribe to. This requires true business tenancy, self-service onboarding, role management, billing, support/operations, and launch-quality observability before external customers are invited.
+
+See `docs/Platform Strategy.md` and `docs/Roadmap.md` for the platform plan.
+
+## Still explicitly out of scope
 
 Opportunity Radar, automated purchasing, supplier ordering, CHIEF/Slims Suite integration, autonomous Facebook posting, autonomous buyer messaging, and speculative multi-agent orchestration.
 

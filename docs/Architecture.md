@@ -14,6 +14,12 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 - Production is hosted on Vercel at [reselling-os.vercel.app](https://reselling-os.vercel.app). The Vercel project provides the required Supabase public environment values at build/runtime; they are not committed to the repository.
 - HTTPS, Supabase Auth, and workspace RLS protect remote access. Never expose the home-PC development port directly to the public internet.
 
+## Platform transition
+
+The current implementation uses the original owner ID as the business boundary and grants collaborators access to that owner's workspace. That is appropriate for the reference operation, but it is not the final SaaS tenancy model. Before onboarding unrelated customers, introduce a first-class `businesses` tenant, move all operational rows to `business_id`, and scope authorization, Storage paths, events, and financial data to that tenant. Migration, rollback, and isolation tests are release blockers for the platform launch.
+
+The hosted application should keep Vercel for the web runtime and Supabase for Auth, Postgres, and Storage. Add production error monitoring, audit logs, backups/restore drills, rate limits, and a support/admin boundary before accepting payment.
+
 ## Logical layers
 1. **Client/PWA** — Home, Inventory, Intake, Sales.
 2. **Application API** — validates and coordinates business actions.

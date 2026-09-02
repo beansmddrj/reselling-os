@@ -23,3 +23,7 @@ Do not silently rewrite the owner's strategy. When sufficient evidence suggests 
 Never claim a strategy is proven from tiny samples. Preference learning and performance learning must remain distinguishable.
 
 Facebook and future eBay behavior should support separate platform profiles while sharing global business preferences.
+
+## Platform requirement
+
+Selling Profiles and future learning data belong to one Business tenant. Never train, benchmark, or surface one reseller's private listing copy, photos, sales, or pricing data to another reseller without explicit opt-in.
