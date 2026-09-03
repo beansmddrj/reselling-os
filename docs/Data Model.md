@@ -17,8 +17,11 @@ A physical owned unit: SKU, product, actual acquisition cost, acquired date, con
 ## Listing
 Platform-specific advertisement: platform, title, description, asking price, status, external listing ID/URL when available, timestamps, and preserved AI-original vs user-final content.
 
+## Inventory Lot (v0.1.8 foundation)
+High-volume stock is represented as a logical lot rather than thousands of Inventory Unit rows. A lot records received, available, reserved, damaged, missing, and sold quantity, plus optional package math (for example, 20 cartons × 24 units), unit cost, notes, and a shipment origin. A lightweight non-sellable Inventory Unit anchor keeps the product compatible with existing listing and detail routes. The sum of every lot state must always equal its received quantity.
+
 ## Sale
-Realized transaction: unit, platform, sale price, fees, shipping/other direct costs, timestamp, and deterministic calculated profit.
+Realized transaction: unit/listing reference, quantity, platform, sale price, fees, shipping/other direct costs, timestamp, and deterministic calculated profit. For a bulk product, one sale can consume several logical units while preserving one transaction in the ledger.
 
 ## Event
 Append-oriented business history: event type, entity IDs, timestamp, actor/source, and relevant before/after values.

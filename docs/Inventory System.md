@@ -10,6 +10,8 @@ A Product answers what the item is. A Unit represents a physical owned copy and 
 
 Identical repeat products may share a reusable template and listing strategy while retaining unit-level cost/history.
 
+High-volume products use **Bulk** mode. Bulk mode holds stock in one or more logical Inventory Lots instead of creating a database row per physical unit. Each lot has an exact quantity balance and can retain package math and shipment origin. This keeps a 500-unit product fast without pretending every unit has separate history.
+
 ## v0.1 statuses
 - `DRAFT` — Intake incomplete
 - `READY` — product/listing prepared but not posted
@@ -27,6 +29,8 @@ Show reusable product information, available units, listings, current asking pri
 Repeatable products reuse one listing while preserving unit-level history. When `Sell multiple` is enabled, completing a sale consumes the selected unit and reduces available quantity by one; replenishment is recorded explicitly through the item’s quantity controls. Each added physical unit can carry its own optional size, with `N/A` stored when size is skipped. Existing N/A units can be sized later, and stock removal requires the operator to choose the exact size to remove.
 
 Repeatable units are grouped into one inventory card showing available and sold counts. A product-level restock status communicates `In stock`, `Temporarily out`, `Restock soon`, `Restock ASAP`, or `Don't restock`. At zero stock, a non-sellable recovery anchor keeps the detail page and shared listing available so stock can be added back in place. Out-of-stock and pending-restock products cannot record another sale until returned to In stock.
+
+Bulk products start through Bulk / Lot Intake. The operator enters one product, its total quantity, optional carton/case math, per-unit cost, and per-unit asking price. A bulk sale records one completed transaction with a selected quantity and total sale price; the database locks and consumes available lot quantity before the sale is inserted, so it cannot oversell. Flexible variant allocation and shipment receiving are the next v0.1.8 increments.
 
 ## History
 Persist meaningful lifecycle events such as creation, confirmation, listing generation, posting, price changes, sales, and later returns/write-offs. Historical records must remain auditable and should not be silently rewritten by later template changes.

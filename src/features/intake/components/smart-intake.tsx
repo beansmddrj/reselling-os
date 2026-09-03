@@ -316,6 +316,7 @@ export function SmartIntake({ sourceShipmentId, defaultCost }: { sourceShipmentI
     <div onPointerDown={(event) => { if (event.target === event.currentTarget) (document.activeElement as HTMLElement | null)?.blur(); }}>
       <div className="mb-6 flex items-start justify-between gap-4">
         <div><p className="text-xs font-semibold uppercase tracking-[.2em] text-[var(--accent)]">Smart Intake · {form.step === "photos" ? "Photos" : "Review"}</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">{form.step === "photos" ? "Show us what you found." : "Review the product."}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">{form.step === "photos" ? "Add 1–5 clear angles. The first photo becomes the lead image; you can replace or reorder any photo." : "No AI guesses yet—enter only what you know. This creates editable drafts, not a live marketplace post."}</p></div>
+        <Link href={sourceShipmentId ? `/intake/bulk?shipment=${sourceShipmentId}${defaultCost ? `&unitCost=${encodeURIComponent(defaultCost)}` : ""}` : "/intake/bulk"} className="shrink-0 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-white">Bulk / lot intake</Link>
       </div>
 
       <div className="mb-5 flex items-center gap-2" aria-label="Intake progress"><span className="h-1.5 flex-1 rounded-full bg-[var(--accent)]"/><span className={`h-1.5 flex-1 rounded-full ${form.step === "review" ? "bg-[var(--accent)]" : "bg-white/10"}`}/></div>

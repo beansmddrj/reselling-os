@@ -34,19 +34,26 @@ export async function listInventory(): Promise<InventoryListItem[]> {
   if (!units.length) return [];
 
   const productIds = [...new Set(units.map((unit) => unit.product_id))];
-  const [productsResult, listingsResult, photosResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, condition, is_template, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
+  const [productsResult, listingsResult, photosResult, lotsResult] = await Promise.all([
+    supabase.from("products").select("id, name, brand, category, condition, is_template, inventory_mode, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
     supabase.from("listings").select("id, product_id, platform, status, asking_price_cents, created_at").eq("business_id", businessId).in("product_id", productIds).order("created_at", { ascending: false }),
     supabase.from("product_photos").select("id, product_id, storage_path, position").eq("business_id", businessId).in("product_id", productIds).eq("position", 0),
+    supabase.from("inventory_lots").select("product_id, available_quantity, sold_quantity").eq("business_id", businessId).in("product_id", productIds),
   ]);
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listings could not be loaded: ${listingsResult.error.message}`);
   if (photosResult.error) throw new Error(`Photos could not be loaded: ${photosResult.error.message}`);
+  if (lotsResult.error) throw new Error(`Bulk inventory could not be loaded: ${lotsResult.error.message}`);
 
   const signedPhotos = await signPhotoPaths(supabase, photosResult.data.map((photo) => photo.storage_path));
   const products = new Map(productsResult.data.map((product) => [product.id, product]));
   const leadPhotos = new Map(photosResult.data.map((photo) => [photo.product_id, signedPhotos.get(photo.storage_path) ?? null]));
   const listings = new Map<string, (typeof listingsResult.data)[number]>();
+  const bulkQuantities = new Map<string, { available: number; sold: number }>();
+  lotsResult.data.forEach((lot) => {
+    const current = bulkQuantities.get(lot.product_id) ?? { available: 0, sold: 0 };
+    bulkQuantities.set(lot.product_id, { available: current.available + lot.available_quantity, sold: current.sold + lot.sold_quantity });
+  });
   listingsResult.data.forEach((listing) => {
     if (!listings.has(listing.product_id)) listings.set(listing.product_id, listing);
   });
@@ -62,7 +69,11 @@ export async function listInventory(): Promise<InventoryListItem[]> {
       unit = productUnits.find((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder) ?? productUnits[0];
     }
     const listing = listings.get(unit.product_id);
-    const cardStatus = product.is_template && !productUnits.some((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder)
+    const inventoryMode = product.inventory_mode === "bulk" ? "bulk" as const : product.is_template ? "repeat" as const : "unique" as const;
+    const bulkQuantity = bulkQuantities.get(product.id) ?? { available: 0, sold: 0 };
+    const cardStatus = product.inventory_mode === "bulk"
+      ? unit.status
+      : product.is_template && !productUnits.some((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder)
       ? (listing?.status === "active" ? "active" : "ready")
       : unit.status;
     return [{
@@ -82,10 +93,11 @@ export async function listInventory(): Promise<InventoryListItem[]> {
       leadPhotoUrl: leadPhotos.get(unit.product_id) ?? null,
       listingPlatform: listing?.platform ?? null,
       sellMultiple: product.is_template,
+      inventoryMode,
       restockStatus: product.restock_status as InventoryListItem["restockStatus"],
       archived: product.archived_at !== null,
-      availableCount: productUnits.filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder).length,
-      soldCount: productUnits.filter((candidate) => candidate.status === "sold").length,
+      availableCount: inventoryMode === "bulk" ? bulkQuantity.available : productUnits.filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder).length,
+      soldCount: inventoryMode === "bulk" ? bulkQuantity.sold : productUnits.filter((candidate) => candidate.status === "sold").length,
     }];
   });
 }
@@ -101,19 +113,24 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   if (unitError) throw new Error(`Inventory item could not be loaded: ${unitError.message}`);
   if (!unit) return null;
 
-  const [productResult, listingsResult, photosResult, siblingUnitsResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, restock_status, archived_at").eq("business_id", businessId).eq("id", unit.product_id).single(),
+  const [productResult, listingsResult, photosResult, siblingUnitsResult, lotsResult] = await Promise.all([
+    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, inventory_mode, restock_status, archived_at").eq("business_id", businessId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("business_id", businessId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("business_id", businessId).eq("product_id", unit.product_id).order("position"),
     supabase.from("inventory_units").select("id, sku, status, variant_size, is_stock_placeholder").eq("business_id", businessId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
+    supabase.from("inventory_lots").select("available_quantity, sold_quantity").eq("business_id", businessId).eq("product_id", unit.product_id),
   ]);
   if (productResult.error) throw new Error(`Product could not be loaded: ${productResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listing could not be loaded: ${listingsResult.error.message}`);
   if (photosResult.error) throw new Error(`Photos could not be loaded: ${photosResult.error.message}`);
   if (siblingUnitsResult.error) throw new Error(`Related inventory units could not be loaded: ${siblingUnitsResult.error.message}`);
+  if (lotsResult.error) throw new Error(`Bulk inventory could not be loaded: ${lotsResult.error.message}`);
 
   const signedPhotos = await signPhotoPaths(supabase, photosResult.data.map((photo) => photo.storage_path));
   const listing = listingsResult.data;
+  const inventoryMode = productResult.data.inventory_mode === "bulk" ? "bulk" as const : productResult.data.is_template ? "repeat" as const : "unique" as const;
+  const bulkAvailable = lotsResult.data.reduce((sum, lot) => sum + lot.available_quantity, 0);
+  const bulkSold = lotsResult.data.reduce((sum, lot) => sum + lot.sold_quantity, 0);
   const availableSizeBreakdown = [...siblingUnitsResult.data
     .filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder)
     .reduce((sizes, candidate) => {
@@ -134,11 +151,12 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     condition: productResult.data.condition,
     description: productResult.data.description,
     sellMultiple: productResult.data.is_template,
+    inventoryMode,
     restockStatus: productResult.data.restock_status as InventoryDetail["restockStatus"],
     archived: productResult.data.archived_at !== null,
-    availableCount: siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder).length,
-    soldCount: siblingUnitsResult.data.filter((candidate) => candidate.status === "sold").length,
-    nextRepeatUnitId: siblingUnitsResult.data.find((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder)?.id ?? null,
+    availableCount: inventoryMode === "bulk" ? bulkAvailable : siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder).length,
+    soldCount: inventoryMode === "bulk" ? bulkSold : siblingUnitsResult.data.filter((candidate) => candidate.status === "sold").length,
+    nextRepeatUnitId: inventoryMode === "bulk" ? null : siblingUnitsResult.data.find((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder)?.id ?? null,
     unitSize: unit.variant_size,
     availableSizeBreakdown,
     unsetSizeUnits: siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder && !candidate.variant_size?.trim()).map((candidate) => ({ id: candidate.id, sku: candidate.sku })),

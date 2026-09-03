@@ -16,6 +16,14 @@ function parseMoney(formData: FormData, name: string, label: string, required = 
   return cents;
 }
 
+function parseQuantity(formData: FormData) {
+  const raw = String(formData.get("quantity") ?? "1").trim();
+  if (!/^\d+$/.test(raw)) throw new Error("Quantity must be a whole number.");
+  const quantity = Number(raw);
+  if (!Number.isSafeInteger(quantity) || quantity < 1) throw new Error("Quantity must be at least one.");
+  return quantity;
+}
+
 export async function recordSaleAction(_previous: RecordSaleState, formData: FormData): Promise<RecordSaleState> {
   const unitId = String(formData.get("unitId") ?? "");
   const platform = String(formData.get("platform") ?? "") as MarketplacePlatform;
@@ -37,6 +45,7 @@ export async function recordSaleAction(_previous: RecordSaleState, formData: For
       shipping_cost_cents: parseMoney(formData, "shippingCost", "Shipping cost"),
       other_cost_cents: parseMoney(formData, "otherCost", "Other cost"),
       sale_sold_at: soldAt.toISOString(),
+      sale_quantity: parseQuantity(formData),
     });
     if (error || !data) return { status: "error", message: error?.message ?? "The sale could not be recorded." };
     saleId = data;

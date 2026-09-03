@@ -11,6 +11,8 @@ export type SaleCandidate = {
   askingPriceCents: number | null;
   platform: MarketplacePlatform | null;
   sellMultiple: boolean;
+  inventoryMode: "unique" | "repeat" | "bulk";
+  availableQuantity: number;
 };
 
 export type SaleLedgerItem = {
@@ -20,6 +22,7 @@ export type SaleLedgerItem = {
   sku: string;
   platform: MarketplacePlatform;
   salePriceCents: number;
+  quantity: number;
   cogsCents: number | null;
   platformFeeCents: number | null;
   paymentFeeCents: number | null;

@@ -16,8 +16,8 @@ export type Database = {
         Relationships: [];
       };
       products: {
-        Row: { id: string; owner_id: string; business_id: string; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; is_template: boolean; restock_status: string; archived_at: string | null; default_asking_price_cents: number | null; default_cost_cents: number | null; created_at: string; updated_at: string };
-        Insert: { id?: string; owner_id: string; business_id: string; name: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; is_template?: boolean; restock_status?: string; archived_at?: string | null; default_asking_price_cents?: number | null; default_cost_cents?: number | null; created_at?: string; updated_at?: string };
+        Row: { id: string; owner_id: string; business_id: string; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; is_template: boolean; inventory_mode: string; restock_status: string; archived_at: string | null; default_asking_price_cents: number | null; default_cost_cents: number | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; business_id: string; name: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; is_template?: boolean; inventory_mode?: string; restock_status?: string; archived_at?: string | null; default_asking_price_cents?: number | null; default_cost_cents?: number | null; created_at?: string; updated_at?: string };
         Update: Partial<Database["public"]["Tables"]["products"]["Insert"]>;
         Relationships: [];
       };
@@ -27,6 +27,12 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["inventory_units"]["Insert"]>;
         Relationships: [];
       };
+      inventory_lots: {
+        Row: { id: string; owner_id: string; business_id: string; product_id: string; source_shipment_id: string | null; received_quantity: number; available_quantity: number; reserved_quantity: number; damaged_quantity: number; missing_quantity: number; sold_quantity: number; package_label: string | null; package_quantity: number | null; units_per_package: number | null; unit_cost_cents: number; notes: string | null; created_at: string; updated_at: string };
+        Insert: { id?: string; owner_id: string; business_id: string; product_id: string; source_shipment_id?: string | null; received_quantity: number; available_quantity: number; reserved_quantity?: number; damaged_quantity?: number; missing_quantity?: number; sold_quantity?: number; package_label?: string | null; package_quantity?: number | null; units_per_package?: number | null; unit_cost_cents?: number; notes?: string | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["inventory_lots"]["Insert"]>;
+        Relationships: [];
+      };
       listings: {
         Row: { id: string; owner_id: string; business_id: string; product_id: string; platform: Database["public"]["Enums"]["marketplace_platform"]; status: Database["public"]["Enums"]["listing_status"]; external_listing_id: string | null; external_url: string | null; title: string; description: string | null; asking_price_cents: number; minimum_price_cents: number | null; original_ai_title: string | null; original_ai_description: string | null; original_ai_asking_price_cents: number | null; posted_at: string | null; ended_at: string | null; created_at: string; updated_at: string };
         Insert: { id?: string; owner_id: string; business_id: string; product_id: string; platform: Database["public"]["Enums"]["marketplace_platform"]; status?: Database["public"]["Enums"]["listing_status"]; external_listing_id?: string | null; external_url?: string | null; title: string; description?: string | null; asking_price_cents: number; minimum_price_cents?: number | null; original_ai_title?: string | null; original_ai_description?: string | null; original_ai_asking_price_cents?: number | null; posted_at?: string | null; ended_at?: string | null; created_at?: string; updated_at?: string };
@@ -34,8 +40,8 @@ export type Database = {
         Relationships: [];
       };
       sales: {
-        Row: { id: string; owner_id: string; business_id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string };
-        Insert: { id?: string; owner_id: string; business_id: string; inventory_unit_id: string; listing_id?: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents?: number; payment_fee_cents?: number; shipping_cost_cents?: number; other_cost_cents?: number; sold_at?: string; created_at?: string };
+        Row: { id: string; owner_id: string; business_id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; quantity: number; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string };
+        Insert: { id?: string; owner_id: string; business_id: string; inventory_unit_id: string; listing_id?: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; quantity?: number; sale_price_cents: number; cogs_cents: number; platform_fee_cents?: number; payment_fee_cents?: number; shipping_cost_cents?: number; other_cost_cents?: number; sold_at?: string; created_at?: string };
         Update: Partial<Database["public"]["Tables"]["sales"]["Insert"]>;
         Relationships: [];
       };
@@ -120,6 +126,14 @@ export type Database = {
         Args: { draft_id: string };
         Returns: { product_id: string; inventory_unit_id: string; listing_id: string }[];
       };
+      create_bulk_inventory_product: {
+        Args: { target_business_id: string; product_name: string; product_brand: string; product_category: string; product_description: string; product_condition: string; product_color: string; product_asking_price_cents: number; product_unit_cost_cents: number; product_storage_location: string; initial_quantity: number; initial_package_label?: string | null; initial_package_quantity?: number | null; initial_units_per_package?: number | null; initial_notes?: string | null; initial_source_shipment_id?: string | null };
+        Returns: { product_id: string; inventory_unit_id: string; lot_id: string; listing_id: string }[];
+      };
+      adjust_bulk_inventory_quantity: {
+        Args: { target_unit_id: string; quantity_delta: number };
+        Returns: number;
+      };
       update_inventory_item: {
         Args: {
           target_unit_id: string;
@@ -161,6 +175,7 @@ export type Database = {
           shipping_cost_cents: number;
           other_cost_cents: number;
           sale_sold_at: string;
+          sale_quantity?: number;
         };
         Returns: string;
       };
@@ -182,7 +197,7 @@ export type Database = {
       };
       get_owner_sales_financials: {
         Args: { target_owner_id: string };
-        Returns: { id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string }[];
+        Returns: { id: string; inventory_unit_id: string; listing_id: string | null; platform: Database["public"]["Enums"]["marketplace_platform"]; quantity: number; sale_price_cents: number; cogs_cents: number; platform_fee_cents: number; payment_fee_cents: number; shipping_cost_cents: number; other_cost_cents: number; sold_at: string; created_at: string }[];
       };
     };
     Enums: {

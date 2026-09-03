@@ -20,6 +20,7 @@ export type InventoryListItem = {
   leadPhotoUrl: string | null;
   listingPlatform: string | null;
   sellMultiple: boolean;
+  inventoryMode: "unique" | "repeat" | "bulk";
   restockStatus: RestockStatus;
   archived: boolean;
   availableCount: number;
