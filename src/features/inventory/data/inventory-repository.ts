@@ -35,10 +35,10 @@ export async function listInventory(): Promise<InventoryListItem[]> {
 
   const productIds = [...new Set(units.map((unit) => unit.product_id))];
   const [productsResult, listingsResult, photosResult, lotsResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, condition, is_template, inventory_mode, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
+    supabase.from("products").select("id, name, brand, category, condition, is_template, inventory_mode, has_variants, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
     supabase.from("listings").select("id, product_id, platform, status, asking_price_cents, created_at").eq("business_id", businessId).in("product_id", productIds).order("created_at", { ascending: false }),
     supabase.from("product_photos").select("id, product_id, storage_path, position").eq("business_id", businessId).in("product_id", productIds).eq("position", 0),
-    supabase.from("inventory_lots").select("product_id, available_quantity, sold_quantity").eq("business_id", businessId).in("product_id", productIds),
+    supabase.from("inventory_lots").select("product_id, available_quantity, sold_quantity, variant_label").eq("business_id", businessId).in("product_id", productIds),
   ]);
   if (productsResult.error) throw new Error(`Products could not be loaded: ${productsResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listings could not be loaded: ${listingsResult.error.message}`);
@@ -114,11 +114,11 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   if (!unit) return null;
 
   const [productResult, listingsResult, photosResult, siblingUnitsResult, lotsResult] = await Promise.all([
-    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, inventory_mode, restock_status, archived_at").eq("business_id", businessId).eq("id", unit.product_id).single(),
+    supabase.from("products").select("id, name, brand, category, size, color, condition, description, is_template, inventory_mode, has_variants, restock_status, archived_at").eq("business_id", businessId).eq("id", unit.product_id).single(),
     supabase.from("listings").select("id, status, platform, title, description, asking_price_cents, external_url, created_at").eq("business_id", businessId).eq("product_id", unit.product_id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("product_photos").select("id, storage_path, position").eq("business_id", businessId).eq("product_id", unit.product_id).order("position"),
     supabase.from("inventory_units").select("id, sku, status, variant_size, is_stock_placeholder").eq("business_id", businessId).eq("product_id", unit.product_id).order("created_at", { ascending: false }),
-    supabase.from("inventory_lots").select("available_quantity, sold_quantity").eq("business_id", businessId).eq("product_id", unit.product_id),
+    supabase.from("inventory_lots").select("available_quantity, sold_quantity, variant_label").eq("business_id", businessId).eq("product_id", unit.product_id),
   ]);
   if (productResult.error) throw new Error(`Product could not be loaded: ${productResult.error.message}`);
   if (listingsResult.error) throw new Error(`Listing could not be loaded: ${listingsResult.error.message}`);
@@ -131,6 +131,14 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
   const inventoryMode = productResult.data.inventory_mode === "bulk" ? "bulk" as const : productResult.data.is_template ? "repeat" as const : "unique" as const;
   const bulkAvailable = lotsResult.data.reduce((sum, lot) => sum + lot.available_quantity, 0);
   const bulkSold = lotsResult.data.reduce((sum, lot) => sum + lot.sold_quantity, 0);
+  const bulkVariantBreakdown = [...lotsResult.data.reduce((variants, lot) => {
+    if (!lot.variant_label) return variants;
+    const current = variants.get(lot.variant_label) ?? { label: lot.variant_label, available: 0, sold: 0 };
+    current.available += lot.available_quantity;
+    current.sold += lot.sold_quantity;
+    variants.set(lot.variant_label, current);
+    return variants;
+  }, new Map<string, { label: string; available: number; sold: number }>()).values()].sort((left, right) => left.label.localeCompare(right.label));
   const availableSizeBreakdown = [...siblingUnitsResult.data
     .filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder)
     .reduce((sizes, candidate) => {
@@ -160,6 +168,7 @@ export async function getInventoryDetail(unitId: string): Promise<InventoryDetai
     unitSize: unit.variant_size,
     availableSizeBreakdown,
     unsetSizeUnits: siblingUnitsResult.data.filter((candidate) => candidate.status !== "sold" && !candidate.is_stock_placeholder && !candidate.variant_size?.trim()).map((candidate) => ({ id: candidate.id, sku: candidate.sku })),
+    bulkVariantBreakdown,
     sku: unit.sku,
     status: unit.status,
     displayStatus: unit.status,

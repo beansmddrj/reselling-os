@@ -13,6 +13,7 @@ export type SaleCandidate = {
   sellMultiple: boolean;
   inventoryMode: "unique" | "repeat" | "bulk";
   availableQuantity: number;
+  variants: { label: string; availableQuantity: number }[];
 };
 
 export type SaleLedgerItem = {
@@ -23,6 +24,7 @@ export type SaleLedgerItem = {
   platform: MarketplacePlatform;
   salePriceCents: number;
   quantity: number;
+  variantLabel: string | null;
   cogsCents: number | null;
   platformFeeCents: number | null;
   paymentFeeCents: number | null;

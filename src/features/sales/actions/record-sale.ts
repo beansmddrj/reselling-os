@@ -46,6 +46,7 @@ export async function recordSaleAction(_previous: RecordSaleState, formData: For
       other_cost_cents: parseMoney(formData, "otherCost", "Other cost"),
       sale_sold_at: soldAt.toISOString(),
       sale_quantity: parseQuantity(formData),
+      sale_variant_label: String(formData.get("variantLabel") ?? "").trim() || null,
     });
     if (error || !data) return { status: "error", message: error?.message ?? "The sale could not be recorded." };
     saleId = data;

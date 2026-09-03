@@ -32,6 +32,7 @@ export type InventoryDetail = InventoryListItem & {
   unitSize: string | null;
   availableSizeBreakdown: { label: string; count: number }[];
   unsetSizeUnits: { id: string; sku: string }[];
+  bulkVariantBreakdown: { label: string; available: number; sold: number }[];
   size: string | null;
   color: string | null;
   description: string | null;

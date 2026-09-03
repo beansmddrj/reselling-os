@@ -34,6 +34,10 @@ Products such as socks that share one long-lived listing can enable `Sell multip
 
 Enabling `Sell multiple` on an already-sold item creates an initial available unit and restores the reusable listing to Ready or Active. Each added unit can have an optional size; skipped sizes are recorded as `N/A`.
 
+## Bulk variants
+
+Bulk products can optionally split one logical total into flexible variants such as size, color, model, or scent. The selected variant is required when a variant-enabled product sells, and the database atomically consumes only matching lot stock. The transaction keeps the selected label in the ledger without exposing owner-only cost details to teammates.
+
 ## Platform requirement
 
 Sales and owner-only finance queries must be tenant-scoped before platform launch. The platform support surface may diagnose workflow failures but must not receive unrestricted access to a reseller's costs, profit, or private media.

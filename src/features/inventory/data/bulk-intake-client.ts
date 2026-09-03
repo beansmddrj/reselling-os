@@ -15,6 +15,7 @@ export type BulkIntakeInput = {
   packageQuantity: number | null;
   unitsPerPackage: number | null;
   notes: string;
+  variants: { label: string; quantity: number }[];
   sourceShipmentId?: string | null;
 };
 
@@ -48,6 +49,7 @@ export async function createBulkInventory(input: BulkIntakeInput) {
     initial_units_per_package: input.unitsPerPackage,
     initial_notes: input.notes || null,
     initial_source_shipment_id: input.sourceShipmentId ?? null,
+    initial_variants: input.variants,
   });
   if (error || !data?.[0]) throw new Error(error?.message ?? "Bulk inventory could not be created.");
   return data[0];

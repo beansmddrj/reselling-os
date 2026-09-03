@@ -25,10 +25,17 @@ export function BulkIntakeForm({ sourceShipmentId, defaultCost }: { sourceShipme
   const [packages, setPackages] = useState("");
   const [unitsPerPackage, setUnitsPerPackage] = useState("");
   const [showPackaging, setShowPackaging] = useState(false);
+  const [showVariants, setShowVariants] = useState(false);
+  const [variants, setVariants] = useState([{ label: "", quantity: "" }]);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
 
   const computedQuantity = packages && unitsPerPackage ? Number(packages) * Number(unitsPerPackage) : null;
+  const variantTotal = variants.reduce((total, variant) => total + (Number.isSafeInteger(Number(variant.quantity)) ? Number(variant.quantity) : 0), 0);
+
+  function updateVariant(index: number, field: "label" | "quantity", value: string) {
+    setVariants((current) => current.map((variant, variantIndex) => variantIndex === index ? { ...variant, [field]: value } : variant));
+  }
 
   async function submit(formData: FormData) {
     setPending(true);
@@ -39,6 +46,11 @@ export function BulkIntakeForm({ sourceShipmentId, defaultCost }: { sourceShipme
       const unitsValue = unitsPerPackage ? toWholeNumber(unitsPerPackage, "Units per package") : null;
       if ((packageQuantity === null) !== (unitsValue === null)) throw new Error("Enter both packages and units per package, or leave both blank.");
       if (packageQuantity !== null && packageQuantity * unitsValue! !== quantityValue) throw new Error("Your package math needs to equal the total quantity.");
+      const parsedVariants = showVariants ? variants.map((variant) => ({ label: variant.label.trim(), quantity: toWholeNumber(variant.quantity, "Variant quantity") })) : [];
+      if (showVariants && parsedVariants.some((variant) => !variant.label || variant.label.length > 80)) throw new Error("Give every variant a short name, like S, Black, or 128 GB.");
+      if (showVariants && new Set(parsedVariants.map((variant) => variant.label.toLowerCase())).size !== parsedVariants.length) throw new Error("Each variant needs a different name.");
+      if (showVariants && parsedVariants.reduce((total, variant) => total + variant.quantity, 0) !== quantityValue) throw new Error("Your variant quantities need to equal the total quantity.");
+      if (showVariants && packageQuantity !== null) throw new Error("Use package math or variants for now, not both on the same intake.");
       const result = await createBulkInventory({
         name: String(formData.get("name") ?? "").trim(),
         brand: String(formData.get("brand") ?? "").trim(),
@@ -54,6 +66,7 @@ export function BulkIntakeForm({ sourceShipmentId, defaultCost }: { sourceShipme
         packageQuantity,
         unitsPerPackage: unitsValue,
         notes: String(formData.get("notes") ?? "").trim(),
+        variants: parsedVariants,
         sourceShipmentId,
       });
       router.push(`/inventory/${result.inventory_unit_id}`);
@@ -83,6 +96,15 @@ export function BulkIntakeForm({ sourceShipmentId, defaultCost }: { sourceShipme
       <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
         <button type="button" onClick={() => setShowPackaging((value) => !value)} className="text-sm font-semibold text-[var(--accent)]">{showPackaging ? "Hide package math" : "Adding cases or cartons?"}</button>
         {showPackaging && <div className="mt-4 grid gap-4 sm:grid-cols-3"><label><span className="text-sm font-medium">Package label</span><input name="packageLabel" placeholder="Cartons" className={inputClass}/></label><label><span className="text-sm font-medium">Packages</span><input inputMode="numeric" value={packages} onChange={(event) => { const next = event.target.value; setPackages(next); if (/^\d+$/.test(next) && /^\d+$/.test(unitsPerPackage)) setQuantity(String(Number(next) * Number(unitsPerPackage))); }} placeholder="20" className={inputClass}/></label><label><span className="text-sm font-medium">Units / package</span><input inputMode="numeric" value={unitsPerPackage} onChange={(event) => { const next = event.target.value; setUnitsPerPackage(next); if (/^\d+$/.test(packages) && /^\d+$/.test(next)) setQuantity(String(Number(packages) * Number(next))); }} placeholder="24" className={inputClass}/></label>{computedQuantity !== null && <p className="sm:col-span-3 text-sm text-[var(--muted)]">Package total: <strong className="text-white">{computedQuantity} units</strong>. Your total quantity is filled in automatically.</p>}</div>}
+      </div>
+      <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <button type="button" onClick={() => setShowVariants((value) => !value)} className="text-sm font-semibold text-[var(--accent)]">{showVariants ? "Remove variants" : "This product has sizes, colors, or models"}</button>
+        <p className="mt-1 text-xs leading-5 text-[var(--muted)]">Optional. Only add this when you need separate stock counts, like S / M / L or Black / White.</p>
+        {showVariants && <div className="mt-4 space-y-3">
+          {variants.map((variant, index) => <div key={`${index}-${variant.label}`} className="grid grid-cols-[minmax(0,1fr)_6rem_auto] gap-2"><input value={variant.label} onChange={(event) => updateVariant(index, "label", event.target.value)} placeholder="Size, color, model…" className="min-h-12 rounded-xl border border-white/10 bg-[#111319] px-3 text-base outline-none focus:border-[var(--accent)]"/><input inputMode="numeric" value={variant.quantity} onChange={(event) => updateVariant(index, "quantity", event.target.value)} placeholder="Qty" className="min-h-12 rounded-xl border border-white/10 bg-[#111319] px-3 text-base outline-none focus:border-[var(--accent)]"/>{variants.length > 1 && <button type="button" onClick={() => setVariants((current) => current.filter((_, variantIndex) => variantIndex !== index))} className="min-h-12 rounded-xl border border-red-300/25 px-3 text-sm font-bold text-red-200">×</button>}</div>)}
+          <div className="flex flex-wrap items-center justify-between gap-3"><button type="button" onClick={() => setVariants((current) => [...current, { label: "", quantity: "" }])} className="min-h-11 rounded-xl border border-white/10 px-4 text-sm font-semibold">+ Add variant</button><p className={`text-sm font-semibold ${variantTotal === Number(quantity) ? "text-[var(--accent)]" : "text-amber-200"}`}>{variantTotal} of {quantity || "0"} units assigned</p></div>
+          {showPackaging && <p className="rounded-xl border border-amber-300/20 bg-amber-300/[.06] px-3 py-2 text-xs text-amber-100">For this first version, use package math or variants—not both. Clear the package fields before creating variant stock.</p>}
+        </div>}
       </div>
       {message && <p role="alert" className="mt-5 rounded-2xl border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-100">{message}</p>}
       <button disabled={pending} className="mt-7 min-h-14 w-full rounded-2xl bg-[var(--accent)] px-5 font-bold text-black shadow-[0_0_35px_var(--accent-glow)] disabled:opacity-50">{pending ? "Creating bulk inventory…" : "Create bulk inventory"}</button>

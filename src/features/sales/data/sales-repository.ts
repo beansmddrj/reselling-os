@@ -10,9 +10,9 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   const [salesResult, unitsResult, lotsResult, expensesResult] = await Promise.all([
     isOwner
       ? supabase.rpc("get_owner_sales_financials", { target_owner_id: ownerId })
-      : supabase.from("sales").select("id, inventory_unit_id, platform, quantity, sale_price_cents, sold_at").eq("business_id", businessId).order("sold_at", { ascending: false }),
+      : supabase.from("sales").select("id, inventory_unit_id, platform, quantity, variant_label, sale_price_cents, sold_at").eq("business_id", businessId).order("sold_at", { ascending: false }),
     supabase.from("inventory_units").select("id, product_id, sku, status, acquisition_cost_cents, is_stock_placeholder").eq("business_id", businessId).order("created_at", { ascending: false }),
-    supabase.from("inventory_lots").select("product_id, available_quantity").eq("business_id", businessId),
+    supabase.from("inventory_lots").select("product_id, available_quantity, variant_label").eq("business_id", businessId),
     isOwner ? supabase.from("business_expenses").select("id, category, amount_cents, description, occurred_on").eq("business_id", businessId).order("occurred_on", { ascending: false }) : Promise.resolve({ data: [], error: null }),
   ]);
   if (salesResult.error) throw new Error(`Sales could not be loaded: ${salesResult.error.message}`);
@@ -23,7 +23,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   const productIds = [...new Set(unitsResult.data.map((unit) => unit.product_id))];
   const saleIds = salesResult.data.map((sale) => sale.id);
   const [productsResult, listingsResult, momentsResult] = productIds.length ? await Promise.all([
-    supabase.from("products").select("id, name, is_template, inventory_mode, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
+    supabase.from("products").select("id, name, is_template, inventory_mode, has_variants, restock_status, archived_at").eq("business_id", businessId).in("id", productIds),
     supabase.from("listings").select("product_id, platform, asking_price_cents, created_at").eq("business_id", businessId).in("product_id", productIds).order("created_at", { ascending: false }),
     saleIds.length ? supabase.from("sale_moments").select("sale_id").eq("business_id", businessId).in("sale_id", saleIds) : Promise.resolve({ data: [], error: null }),
   ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
@@ -34,7 +34,15 @@ export async function getSalesOverview(): Promise<SalesOverview> {
   const products = new Map(productsResult.data.map((product) => [product.id, product]));
   const units = new Map(unitsResult.data.map((unit) => [unit.id, unit]));
   const availableBulkQuantity = new Map<string, number>();
-  lotsResult.data.forEach((lot) => availableBulkQuantity.set(lot.product_id, (availableBulkQuantity.get(lot.product_id) ?? 0) + lot.available_quantity));
+  const availableBulkVariants = new Map<string, Map<string, number>>();
+  lotsResult.data.forEach((lot) => {
+    availableBulkQuantity.set(lot.product_id, (availableBulkQuantity.get(lot.product_id) ?? 0) + lot.available_quantity);
+    if (lot.variant_label) {
+      const variants = availableBulkVariants.get(lot.product_id) ?? new Map<string, number>();
+      variants.set(lot.variant_label, (variants.get(lot.variant_label) ?? 0) + lot.available_quantity);
+      availableBulkVariants.set(lot.product_id, variants);
+    }
+  });
   const listings = new Map<string, (typeof listingsResult.data)[number]>();
   listingsResult.data.forEach((listing) => { if (!listings.has(listing.product_id)) listings.set(listing.product_id, listing); });
   const momentCounts = new Map<string, number>();
@@ -48,7 +56,7 @@ export async function getSalesOverview(): Promise<SalesOverview> {
       otherCostCents: sale.other_cost_cents,
     } : { cogsCents: null, platformFeeCents: null, paymentFeeCents: null, shippingCostCents: null, otherCostCents: null };
     const profitCents = privateCosts.cogsCents === null ? null : calculateProfitCents({ salePriceCents: sale.sale_price_cents, cogsCents: privateCosts.cogsCents, platformFeeCents: privateCosts.platformFeeCents ?? 0, paymentFeeCents: privateCosts.paymentFeeCents ?? 0, shippingCostCents: privateCosts.shippingCostCents ?? 0, otherCostCents: privateCosts.otherCostCents ?? 0 });
-    return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, quantity: sale.quantity, salePriceCents: sale.sale_price_cents, ...privateCosts, profitCents, soldAt: sale.sold_at, soldMomentCount: momentCounts.get(sale.id) ?? 0 };
+    return { id: sale.id, inventoryUnitId: sale.inventory_unit_id, productName: unit ? products.get(unit.product_id)?.name ?? "Inventory item" : "Inventory item", sku: unit?.sku ?? "—", platform: sale.platform, quantity: sale.quantity, variantLabel: sale.variant_label ?? null, salePriceCents: sale.sale_price_cents, ...privateCosts, profitCents, soldAt: sale.sold_at, soldMomentCount: momentCounts.get(sale.id) ?? 0 };
   });
   const candidates: SaleCandidate[] = unitsResult.data.filter((unit) => {
     const product = products.get(unit.product_id);
@@ -60,7 +68,8 @@ export async function getSalesOverview(): Promise<SalesOverview> {
     const listing = listings.get(unit.product_id);
     const product = products.get(unit.product_id);
     const inventoryMode = product?.inventory_mode === "bulk" ? "bulk" : product?.is_template ? "repeat" : "unique";
-    return { id: unit.id, name: product?.name ?? "Inventory item", sku: unit.sku, status: unit.status, acquisitionCostCents: unit.acquisition_cost_cents, askingPriceCents: listing?.asking_price_cents ?? null, platform: listing?.platform ?? null, sellMultiple: product?.is_template ?? false, inventoryMode, availableQuantity: inventoryMode === "bulk" ? availableBulkQuantity.get(unit.product_id) ?? 0 : 1 };
+    const variants = [...(availableBulkVariants.get(unit.product_id) ?? new Map<string, number>()).entries()].map(([label, availableQuantity]) => ({ label, availableQuantity })).filter((variant) => variant.availableQuantity > 0).sort((left, right) => left.label.localeCompare(right.label));
+    return { id: unit.id, name: product?.name ?? "Inventory item", sku: unit.sku, status: unit.status, acquisitionCostCents: unit.acquisition_cost_cents, askingPriceCents: listing?.asking_price_cents ?? null, platform: listing?.platform ?? null, sellMultiple: product?.is_template ?? false, inventoryMode, availableQuantity: inventoryMode === "bulk" ? availableBulkQuantity.get(unit.product_id) ?? 0 : 1, variants };
   });
   const revenueCents = sales.reduce((sum, sale) => sum + sale.salePriceCents, 0);
   const expenses: BusinessExpense[] = expensesResult.data.map((expense) => ({ id: expense.id, category: expense.category as BusinessExpense["category"], amountCents: expense.amount_cents, description: expense.description, occurredOn: expense.occurred_on }));

@@ -44,7 +44,7 @@ The essential operational loop is implemented and running on Vercel with Supabas
 
 ## Product improvements after the platform core
 
-- [~] v0.1.8 bulk quantity foundation — logical bulk lots, fast bulk intake, and quantity-aware bulk sale transactions are implemented; flexible variant intake, receiving flows, batch actions, Attention Needed, and optional push remain next
+- [~] v0.1.8 bulk operations — logical bulk lots, fast bulk intake, flexible variant allocation, variant-aware quantity adjustments, and quantity-aware bulk sales are implemented; shipment receiving flows, batch actions, Attention Needed, and optional push remain next
 - [ ] Structured AI item identification with confidence and human review
 - [ ] Selling Profile-aware listing generation that preserves original AI output and user edits
 - [ ] Installable PWA polish and offline/interrupted-work handling

@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export function BulkQuantityControls({ unitId, availableCount }: { unitId: string; availableCount: number }) {
+export function BulkQuantityControls({ unitId, availableCount, variants }: { unitId: string; availableCount: number; variants: { label: string; available: number; sold: number }[] }) {
   const router = useRouter();
   const [amount, setAmount] = useState("1");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [variantLabel, setVariantLabel] = useState(variants[0]?.label ?? "");
 
   async function adjust(direction: 1 | -1) {
     const parsed = Number(amount);
@@ -16,8 +17,13 @@ export function BulkQuantityControls({ unitId, availableCount }: { unitId: strin
       setError("Enter a whole number of at least 1.");
       return;
     }
-    if (direction < 0 && parsed > availableCount) {
-      setError(`Only ${availableCount} units are available to remove.`);
+    const variantAvailable = variants.find((variant) => variant.label === variantLabel)?.available ?? availableCount;
+    if (variants.length > 0 && !variantLabel) {
+      setError("Choose the variant you are adjusting.");
+      return;
+    }
+    if (direction < 0 && parsed > variantAvailable) {
+      setError(`Only ${variantAvailable} units are available${variantLabel ? ` for ${variantLabel}` : ""}.`);
       return;
     }
     setPending(true);
@@ -25,6 +31,7 @@ export function BulkQuantityControls({ unitId, availableCount }: { unitId: strin
     const { error: rpcError } = await createClient().rpc("adjust_bulk_inventory_quantity", {
       target_unit_id: unitId,
       quantity_delta: direction * parsed,
+      target_variant_label: variantLabel || null,
     });
     if (rpcError) setError(rpcError.message);
     else {
@@ -38,6 +45,7 @@ export function BulkQuantityControls({ unitId, availableCount }: { unitId: strin
     <p className="text-xs font-semibold uppercase tracking-[.15em] text-[var(--accent)]">Bulk quantity</p>
     <p className="mt-1 text-sm text-[var(--muted)]">Adjust real on-hand stock without creating duplicate listings. Removed units are recorded as a stock correction, never silently deleted.</p>
     <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"><label className="block sm:w-40"><span className="text-sm font-semibold">Units</span><input inputMode="numeric" value={amount} onChange={(event) => setAmount(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-[#111319] px-3 text-base outline-none focus:border-[var(--accent)]"/></label><div className="flex flex-wrap gap-2"><button type="button" disabled={pending} onClick={() => void adjust(1)} className="min-h-11 rounded-xl bg-[var(--accent)] px-4 text-sm font-bold text-black disabled:opacity-50">{pending ? "Updating…" : "Add stock"}</button><button type="button" disabled={pending || availableCount === 0} onClick={() => void adjust(-1)} className="min-h-11 rounded-xl border border-red-300/30 px-4 text-sm font-bold text-red-200 disabled:opacity-50">Remove stock</button></div></div>
+    {variants.length > 0 && <label className="mt-4 block"><span className="text-sm font-semibold">Variant</span><select value={variantLabel} onChange={(event) => setVariantLabel(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-[#111319] px-3 text-base outline-none focus:border-[var(--accent)]">{variants.map((variant) => <option key={variant.label} value={variant.label}>{variant.label} · {variant.available} available</option>)}</select></label>}
     {error && <p role="alert" className="mt-3 text-sm text-red-200">{error}</p>}
   </section>;
 }
