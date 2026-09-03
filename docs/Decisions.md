@@ -67,3 +67,7 @@ The business owner may promote a teammate to the `admin` workspace role from Set
 ## 2026-09-02 — Workspace diagnostics are private and sanitized
 
 Signed-in runtime errors are recorded as short, sanitized workspace diagnostics. They intentionally exclude stack traces, passwords, form values, inventory details, and financial data. Workspace owners and admins may review them in the Admin Control Center; regular members cannot. This is operational visibility, not a replacement for an external alerting service or a distributed traffic limiter before public beta.
+
+## 2026-09-02 — Phone collection is optional, private, and separate from sign-in
+
+Users can optionally save a contact number without switching their login to phone authentication. Numbers are held in a separate private contact record rather than the team-readable profile; only the user and workspace owner can see them. Future marketing-text permission is an explicit separate opt-in with timestamp and version, and no texts are sent until a dedicated messaging system, terms, privacy notice, and unsubscribe workflow are in place.

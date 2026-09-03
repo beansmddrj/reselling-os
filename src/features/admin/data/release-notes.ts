@@ -10,6 +10,17 @@ export type ReleaseNote = {
 // operators get a readable, stable explanation of what reached production.
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "v0.1.7",
+    releasedOn: "September 2, 2026",
+    status: "Installed",
+    summary: "Private contact collection",
+    changes: [
+      "Each user can optionally save a private phone number in Account settings without changing their login method.",
+      "The workspace owner has a private contact list; teammates and admins cannot see other people’s numbers.",
+      "Future text-message permission is a separate, optional choice and no promotional texts are sent by the app.",
+    ],
+  },
+  {
     version: "v0.1.6",
     releasedOn: "September 2, 2026",
     status: "Installed",

@@ -63,6 +63,12 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      workspace_contacts: {
+        Row: { business_id: string; user_id: string; phone_e164: string; marketing_opt_in: boolean; marketing_consent_at: string | null; marketing_opted_out_at: string | null; marketing_consent_version: string | null; created_at: string; updated_at: string };
+        Insert: { business_id: string; user_id: string; phone_e164: string; marketing_opt_in?: boolean; marketing_consent_at?: string | null; marketing_opted_out_at?: string | null; marketing_consent_version?: string | null; created_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["workspace_contacts"]["Insert"]>;
+        Relationships: [];
+      };
       intake_drafts: {
         Row: { id: string; owner_id: string; business_id: string; step: Database["public"]["Enums"]["intake_step"]; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; acquisition_cost_cents: number | null; asking_price_cents: number | null; storage_location: string | null; source_shipment_id: string | null; photo_paths: string[]; created_at: string; updated_at: string };
         Insert: { id?: string; owner_id: string; business_id: string; step?: Database["public"]["Enums"]["intake_step"]; name?: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; acquisition_cost_cents?: number | null; asking_price_cents?: number | null; storage_location?: string | null; source_shipment_id?: string | null; photo_paths?: string[]; created_at?: string; updated_at?: string };

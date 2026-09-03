@@ -30,6 +30,7 @@ The essential operational loop is implemented and running on Vercel with Supabas
 - [ ] Subscription/billing model and entitlements
 - [ ] Trial, cancellation, and failed-payment behavior
 - [ ] Terms, privacy policy, data-retention/deletion flow, and support contact
+- [x] Optional private phone collection with separate future-text consent tracking
 - [ ] Product analytics that exclude sensitive item/financial content by default
 
 ### Reliability and launch operations

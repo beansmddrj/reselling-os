@@ -1,0 +1,14 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getWorkspaceContacts } from "@/features/admin/data/workspace-contacts";
+import { getBusinessContext } from "@/features/team/data/business-context";
+
+export const dynamic = "force-dynamic";
+
+export default async function WorkspaceContactsPage() {
+  const { role } = await getBusinessContext();
+  if (role !== "owner") notFound();
+  const contacts = await getWorkspaceContacts();
+  const optedIn = contacts.filter((contact) => contact.marketingOptIn).length;
+  return <div className="mx-auto max-w-4xl space-y-6"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.2em] text-[var(--accent)]">Owner contacts</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Your phone list.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">Private workspace contact numbers. Only the workspace owner can see this list.</p></div><Link href="/settings/admin" className="min-h-11 rounded-2xl border border-white/10 px-4 py-3 text-sm font-semibold text-[var(--muted)] hover:bg-white/5 hover:text-white">← Back to admin</Link></div><section className="surface rounded-[2rem] p-5 sm:p-7"><div className="grid gap-4 sm:grid-cols-2"><div className="rounded-2xl bg-black/20 p-4"><p className="text-xs font-semibold uppercase tracking-[.14em] text-[var(--muted)]">Saved contacts</p><p className="mt-2 text-3xl font-semibold">{contacts.length}</p></div><div className="rounded-2xl bg-[var(--accent)]/[.08] p-4"><p className="text-xs font-semibold uppercase tracking-[.14em] text-[var(--accent)]">Future text opt-ins</p><p className="mt-2 text-3xl font-semibold">{optedIn}</p></div></div><p className="mt-5 text-sm leading-6 text-[var(--muted)]">No marketing texts are sent by Reselling OS. Do not export or text this list until the messaging flow, terms, privacy notice, and unsubscribe handling are ready.</p></section><section className="surface overflow-hidden rounded-[2rem]"><div className="border-b border-white/8 px-5 py-5 sm:px-7"><h2 className="font-semibold">Contacts</h2></div>{contacts.length ? <div className="divide-y divide-white/8">{contacts.map((contact) => <article key={contact.userId} className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-7"><div><p className="font-semibold">{contact.displayName}</p><p className="mt-1 text-sm text-[var(--muted)]">{contact.phone}</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-bold ${contact.marketingOptIn ? "bg-emerald-400/10 text-emerald-200" : "bg-white/7 text-[var(--muted)]"}`}>{contact.marketingOptIn ? "Future text opt-in" : "No text permission"}</span></article>)}</div> : <p className="px-5 py-8 text-sm text-[var(--muted)] sm:px-7">No one has added a phone number yet.</p>}</section></div>;
+}
