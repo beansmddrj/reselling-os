@@ -18,7 +18,7 @@ Standalone mobile-first installable PWA with a desktop layout. It must remain in
 
 The current implementation uses a first-class `businesses` tenant. Every legacy workspace has a Business record, memberships and invitations carry `business_id`, and every operational table stores a backfilled `business_id`. Direct application queries, writes, photo Storage paths, and RLS policies enforce that Business boundary. Inventory and sales RPCs explicitly run as the caller, so the same Business RLS policies apply within each action rather than being bypassed by function privileges. Some legacy owner predicates remain as a secondary guard during the transition; the product must not introduce multi-workspace switching until those paths are fully business-native and covered by broader authorization tests.
 
-The hosted application should keep Vercel for the web runtime and Supabase for Auth, Postgres, and Storage. Add production error monitoring, audit logs, backups/restore drills, rate limits, and a support/admin boundary before accepting payment.
+The hosted application should keep Vercel for the web runtime and Supabase for Auth, Postgres, and Storage. Signed-in runtime failures are recorded as sanitized workspace diagnostics readable only by an owner or admin; they do not include stack traces, secrets, inventory details, or financial data. Add external alerting, backups/restore drills, a distributed traffic rate limit, and a support/admin boundary before accepting payment.
 
 ## Logical layers
 1. **Client/PWA** — Home, Inventory, Intake, Sales.

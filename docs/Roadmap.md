@@ -34,7 +34,8 @@ The essential operational loop is implemented and running on Vercel with Supabas
 
 ### Reliability and launch operations
 
-- [ ] Error monitoring and alerting
+- [x] Private signed-in error capture and owner/admin workspace health view
+- [ ] External alerting and a distributed traffic rate limit for public-beta traffic
 - [ ] Automated backups plus a restore drill
 - [ ] Rate limits and upload-abuse controls
 - [ ] Production smoke tests for sign-in, Intake, Inventory, Sales, and team access

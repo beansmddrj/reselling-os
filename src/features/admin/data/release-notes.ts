@@ -10,6 +10,17 @@ export type ReleaseNote = {
 // operators get a readable, stable explanation of what reached production.
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "v0.1.6",
+    releasedOn: "September 2, 2026",
+    status: "Installed",
+    summary: "Workspace health monitoring",
+    changes: [
+      "Signed-in application errors can be captured as safe diagnostics for workspace owners and admins.",
+      "The Admin Control Center now shows recent error reports without exposing passwords, inventory details, financial data, or stack traces.",
+      "New accounts require a 12-character password in the app. Public-beta traffic still needs a distributed rate limit and external alerts.",
+    ],
+  },
+  {
     version: "v0.1.5",
     releasedOn: "September 2, 2026",
     status: "Installed",

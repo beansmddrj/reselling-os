@@ -57,6 +57,12 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["business_events"]["Insert"]>;
         Relationships: [];
       };
+      workspace_error_reports: {
+        Row: { id: string; business_id: string; reporter_id: string; source: string; message: string; digest: string | null; occurred_at: string };
+        Insert: { id?: string; business_id: string; reporter_id: string; source: string; message: string; digest?: string | null; occurred_at?: string };
+        Update: never;
+        Relationships: [];
+      };
       intake_drafts: {
         Row: { id: string; owner_id: string; business_id: string; step: Database["public"]["Enums"]["intake_step"]; name: string; brand: string | null; category: string | null; size: string | null; color: string | null; condition: string | null; description: string | null; acquisition_cost_cents: number | null; asking_price_cents: number | null; storage_location: string | null; source_shipment_id: string | null; photo_paths: string[]; created_at: string; updated_at: string };
         Insert: { id?: string; owner_id: string; business_id: string; step?: Database["public"]["Enums"]["intake_step"]; name?: string; brand?: string | null; category?: string | null; size?: string | null; color?: string | null; condition?: string | null; description?: string | null; acquisition_cost_cents?: number | null; asking_price_cents?: number | null; storage_location?: string | null; source_shipment_id?: string | null; photo_paths?: string[]; created_at?: string; updated_at?: string };

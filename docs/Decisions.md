@@ -63,3 +63,7 @@ Direct application reads and writes, private Intake and Sold Moment Storage path
 ## 2026-09-02 — Workspace admins are operational, not financial
 
 The business owner may promote a teammate to the `admin` workspace role from Settings. Admins may access the private Admin Control Center and operational release history, but they do not gain access to owner-only costs, profit, expenses, or shipment capital. The release log is a curated record of production changes so operators can tell what is actually installed without reading deployment tooling.
+
+## 2026-09-02 — Workspace diagnostics are private and sanitized
+
+Signed-in runtime errors are recorded as short, sanitized workspace diagnostics. They intentionally exclude stack traces, passwords, form values, inventory details, and financial data. Workspace owners and admins may review them in the Admin Control Center; regular members cannot. This is operational visibility, not a replacement for an external alerting service or a distributed traffic limiter before public beta.
